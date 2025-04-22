@@ -21,6 +21,11 @@ async def connect(connection: types.BusinessConnection) -> None:
     user: types.User = connection.user
     user_id: int = user.id
 
+    owner = db.get("tensai.user.telegram_id", None)
+
+    if owner != user_id and owner:
+        return await bot.send_message(user_id, "You are not the owner of this bot.")
+
     db.set('tensai.user', {
         "telegram_id": user_id,
         "first_name": connection.user.first_name,
@@ -32,11 +37,11 @@ async def connect(connection: types.BusinessConnection) -> None:
 
     rights: types.BusinessBotRights = connection.rights
 
-    #print("Rights:")
+    # print("Rights:")
     for right, value in dict(rights).items():
-        db.set('tensai.rights', {right: bool(value)})
-        #print(f"{right}: {value}")
+        db.set('tensai.rights', {right: value})
+        # print(f"{right}: {value}")
 
-    #print("About rights: https://docs.aiogram.dev/en/latest/api/types/business_bot_rights.html")
+    # print("About rights: https://docs.aiogram.dev/en/latest/api/types/business_bot_rights.html")
 
     await bot.send_message(user_id, "Your account has been successfully (re)connected to Tensai.")
