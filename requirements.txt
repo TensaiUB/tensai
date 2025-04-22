@@ -1,0 +1,6 @@
+aiogram
+rich
+GitPython
+meval
+fakeredis
+redis
