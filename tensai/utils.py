@@ -61,7 +61,7 @@ def escape_html(text: str) -> str:
 def get_args(message: types.Message) -> str:
     """Get arguments from message."""
     
-    return args[1] if len(args := message.split(maxsplit=1)) > 1 else ""
+    return args[1] if len(args := message.text.split(maxsplit=1)) > 1 else ""
 
 def get_base_dir() -> str:
     """Get directory of this file."""

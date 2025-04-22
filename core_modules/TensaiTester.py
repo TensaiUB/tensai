@@ -1,19 +1,18 @@
 # description: simple ping module
-# author: @vsecoder
+# author: @vsecoder, @fajox
 
 import time
 from aiogram import types
 from tensai import db
 from tensai.loader import Module
 
-
-class Ping(Module):
+class TensaiTester(Module):
     strings: dict[str, dict[str, str]] = {
         "ru": {
-            "ping": "🏓 Понг! <b>{}</b>",
+            "ping": "<b><tg-emoji emoji-id=5931472654660800739>🏓</tg-emoji> Понг! Пинг <code>{ms}</code> ms.</b>",
         },
         "en": {
-            "ping": "🏓 Pong! <b>{}</b>",
+            "ping": "<b><tg-emoji emoji-id=5931472654660800739>🏓</tg-emoji> Pong! Ping <code>{ms}</code> ms.</b>",
         },
     }
 
@@ -29,4 +28,4 @@ class Ping(Module):
         end = time.monotonic()
 
         ping_ms = int((end - start) * 1000)
-        await message.edit_text(self.strings('ping').format(ping_ms))
+        await message.edit_text(self.strings('ping').format(ms=ping_ms))

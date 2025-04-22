@@ -57,9 +57,9 @@ class Loader:
             module: ModuleType = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
 
-            module_name = module_path.stem.lower()
+            module_name = module_path.stem.capitalize()
             module_class = next(
-                (obj for name, obj in inspect.getmembers(module, inspect.isclass) if name.lower() == module_name), None
+                (obj for name, obj in inspect.getmembers(module, inspect.isclass) if name.lower() == module_name.lower()), None
             )
             if not module_class:
                 print(f"Module class not found in {module_name}")

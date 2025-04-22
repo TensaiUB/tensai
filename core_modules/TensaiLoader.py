@@ -12,7 +12,7 @@ from tensai.main import loader
 from tensai import bot, db
 
 
-class Load(Module):
+class TensaiLoader(Module):
     strings = {
         "en": {
             "missing_reply": "Please reply to a module file to load it.",

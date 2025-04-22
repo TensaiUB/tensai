@@ -4,6 +4,8 @@ from aiogram.enums import ParseMode
 
 from tensai import db
 
+from rich import print
+
 class BotManager:
     def __init__(self) -> None:
         self.bot: types.Bot | None = None
@@ -12,10 +14,10 @@ class BotManager:
     def _install_bot(self) -> str:
         """Install the bot."""
     
-        print("Installing Tensai bot...")
+        print("\n[italic cornflower_blue]Installing Tensai bot...[/italic cornflower_blue]")
 
         while True:
-            token: str = input("Enter your bot token: ")
+            token: str = input("Enter your bot token from @BotFather (make sure business mode is on): ")
 
             try:
                 Bot(

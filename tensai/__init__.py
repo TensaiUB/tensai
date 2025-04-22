@@ -6,10 +6,12 @@ from redis.exceptions import ConnectionError, RedisError
 from tensai import utils
 from tensai.bot_core import BotManager
 
+import os
 import asyncio
 
 git_info = asyncio.run(utils.get_git_info())
 
+os.system("cls" if os.name == "nt" else "clear")
 print(f"""[sky_blue1] _____                    _ 
 |_   _|__ _ __  ___  __ _(_)
   | |/ _ \ '_ \/ __|/ _` | |

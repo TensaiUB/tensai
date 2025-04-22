@@ -9,8 +9,8 @@ from tensai.loader import Module
 from tensai import bot, redis, db
 
 
-class Selflog(Module):
-    async def _cmd_enterchat(self, message: types.Message):
+class TensaiSelflog(Module):
+    async def _cmd_setchat(self, message: types.Message):
         """
         <chat_id> - enter chat id for selflog
         """
