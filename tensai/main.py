@@ -1,5 +1,6 @@
 from tensai import dp, bot, db, install
 from tensai.loader import Loader
+from tensai.update import auto_updater
 
 import asyncio
 
@@ -13,13 +14,11 @@ async def run_bot() -> None:
 
     print("Starting the bot...")
 
-    # Run the bot polling in the background
-    asyncio.create_task(start_polling())
-
-    print("Bot started!")
-
     user_data: str | None = db.get('tensai.user', None)
     if not user_data:
         await install.install_user()
+    print("Bot started!")
 
-    await asyncio.sleep(float('inf'))
+    await start_polling()
+
+    asyncio.create_task(auto_updater())

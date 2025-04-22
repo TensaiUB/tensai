@@ -12,14 +12,18 @@ from tensai import bot, redis, db
 class Selflog(Module):
     async def _cmd_enterchat(self, message: types.Message):
         """
-         <chat_id> - enter chat id for selflog
+        <chat_id> - enter chat id for selflog
         """
+        admin_id = db.get("tensai.user.telegram_id")
+        if message.from_user.id != admin_id:
+            return
+
         chat_id = message.text.split()[1]
         if not chat_id:
             return
+
         db.set("tensai.selflog.chat_id", chat_id)
         await message.reply("<b>✅ Selflog chat has been changed!</b>")
-
 
     async def _bismsg_selflog(self, message: types.Message):
         await self.set_message(message)
@@ -40,7 +44,7 @@ class Selflog(Module):
         if model_dump:
             return
 
-        user = db.get(f"users.{message.reply_to_message.from_user.id}")
+        user = db.get(f"tensai.selflog.users.{message.reply_to_message.from_user.id}")
         if not user:
             return
 
@@ -66,8 +70,6 @@ class Selflog(Module):
             await self.send_media(bot, log_chat_id, user, file_type, file_id)
 
     async def _bisedit_selflog(self, message: types.Message):
-        await self.set_message(message)
-
         model_dump = await redis.get(f"{message.chat.id}:{message.message_id}")
         if not model_dump:
             return
@@ -76,7 +78,7 @@ class Selflog(Module):
         if not original_message.from_user:
             return
 
-        user = db.get(f"users.{original_message.from_user.id}")
+        user = db.get(f"tensai.selflog.users.{original_message.from_user.id}")
         if not user:
             return
 
@@ -118,7 +120,7 @@ class Selflog(Module):
             if not original_message.from_user:
                 continue
 
-            user = db.get(f"users.{original_message.from_user.id}")
+            user = db.get(f"tensai.selflog.users.{original_message.from_user.id}")
             if not user:
                 continue
 
@@ -146,7 +148,7 @@ class Selflog(Module):
         if message.from_user.id == admin_id:
             return
 
-        user = db.get(f"users.{message.from_user.id}")
+        user = db.get(f"tensai.selflog.users.{message.from_user.id}")
         if not user:
             topic = await bot.create_forum_topic(chat_id=log_chat_id, name=message.from_user.full_name)
 
@@ -156,7 +158,7 @@ class Selflog(Module):
                 message_thread_id=topic.message_thread_id,
             )
 
-            db.set(f"users.{message.from_user.id}", {
+            db.set(f"tensai.selflog.users.{message.from_user.id}", {
                 "id": message.from_user.id,
                 "topic_id": topic.message_thread_id
             })
@@ -164,7 +166,7 @@ class Selflog(Module):
         await redis.set(
             f"{message.chat.id}:{message.message_id}",
             message.model_dump_json(),
-            ex=7 * 86400
+            ex=60 * 60 * 24 * 21
         )
 
     async def send_media(self, bot, chat_id, user, media_type, file_id):

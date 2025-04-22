@@ -33,7 +33,7 @@ class Help(Module):
         for module_name, module_data in loader.modules.items():
             text += f"<b>📦 {module_name}</b>\n"
 
-            for cmd_type in ["business_message", "callback_query", "inline_query"]:
+            for cmd_type in ["business_message"]:
                 cmds = module_data.get(cmd_type, {})
                 for cmd, info in cmds.items():
                     desc = info.get("description", "") or self.strings("no_doc")

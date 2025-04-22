@@ -6,7 +6,7 @@ from pathlib import Path
 from importlib.machinery import ModuleSpec
 
 from aiogram import Router, F
-from tensai import dp, utils, db
+from tensai import dp, utils
 
 
 class Strings:
@@ -69,11 +69,14 @@ class Loader:
             router = Router(name=module_name)
 
             handlers_by_type = {
-                "_cmd_": ("business_message", lambda cmd: F.text.startswith(f"{instance.prefix}{cmd}")),
+                "_cmd_": (
+                    "business_message",
+                    lambda cmd: F.text.startswith(f"{instance.prefix}{cmd}"),
+                ),
                 "_inline_": ("inline_query", lambda _: True),
                 "_cbq_": ("callback_query", lambda _: True),
-                "_bismsg_": ("business_message", lambda _: F.business_message),
-                "_bisedit_": ("business_edited_message", lambda _: F.business_message),
+                "_bismsg_": ("business_message", lambda _: F.from_user),
+                "_bisedit_": ("business_edited_message", lambda _: True),
                 "_bisdel_": ("business_deleted_message", lambda _: True),
             }
 
@@ -95,7 +98,7 @@ class Loader:
                         elif handler_type == "business_message":
                             router.business_message(filter_fn(cmd))(handler)
                         elif handler_type == "business_edited_message":
-                            router.edited_business_message(filter_fn(cmd))(handler)
+                            router.edited_business_message()(handler)
                         elif handler_type == "business_deleted_message":
                             router.deleted_business_messages()(handler)
 
