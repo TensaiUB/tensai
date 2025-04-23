@@ -10,6 +10,8 @@ from tensai.update import update
 
 import git
 
+SUPPORTED_LANGS = ["ru", "en"]
+
 class TensaiMain(Module):
     strings: dict[str, dict[str, str]] = {
         "ru": {
@@ -18,8 +20,11 @@ class TensaiMain(Module):
 <b><tg-emoji emoji-id=5346181118884331907>🐈‍⬛</tg-emoji> Github: <a href="https://github.com/TensaiUB/tensai">открыть</a></b>
             
 <tg-emoji emoji-id=5190458330719461749>🧑‍💻</tg-emoji> <b>Разработчики: @fajox & @vsecoder</b>""",
-            "lang": "<b>Выбранный язык: {}</b>",
-            "no_lang": "<b>Язык не выбран.</b>",
+
+            "lang": "<b>{flag} Язык установлен: {lang}</b>\n\n{unofficial}",
+            "no_support_lang": "<i><tg-emoji emoji-id=5355133243773435190>⚠️</tg-emoji> Данный язык официально не поддерживается.</i>",
+            "inccorrect_language": "<b><tg-emoji emoji-id=5854929766146118183>❌</tg-emoji> Некорректный язык.</b>",
+            "no_lang": "<b><tg-emoji emoji-id=5854929766146118183>❌</tg-emoji> Язык не выбран.</b>",
         },
         "en": {
             "tensai-info": """<b>💠 Tensai - fast and safe userbot.</b>
@@ -27,9 +32,23 @@ class TensaiMain(Module):
 <b><tg-emoji emoji-id=5346181118884331907>🐈‍⬛</tg-emoji> Github: <a href="https://github.com/TensaiUB/tensai">open</a></b>
             
 <tg-emoji emoji-id=5190458330719461749>🧑‍💻</tg-emoji> <b>Developers: @fajox & @vsecoder</b>""",
-            "lang": "<b>Selected language: {}</b>",
-            "no_lang": "<b>No language selected.</b>",
+            "lang": "<b>{flag} Language saved: {lang}</b>\n\n{unofficial}",
+            "no_support_lang": "<i><tg-emoji emoji-id=5355133243773435190>⚠️</tg-emoji> This language is not officially supported.</i>",
+            "inccorrect_language": "<b><tg-emoji emoji-id=5854929766146118183>❌</tg-emoji> Incorrect language.</b>",
+            "no_lang": "<b><tg-emoji emoji-id=5854929766146118183>❌</tg-emoji> No language selected.</b>",
         },
+    }
+
+    emoji_flags = {
+        "🇪🇳": "<tg-emoji emoji-id=5202196682497859879>🇬🇧</tg-emoji>",
+        "🇺🇿": "<tg-emoji emoji-id=5449829434334912605>🇺🇿</tg-emoji>",
+        "🇷🇺": "<tg-emoji emoji-id=5449408995691341691>🇷🇺</tg-emoji>",
+        "🇺🇦": "<tg-emoji emoji-id=5447309366568953338>🇺🇦</tg-emoji>",
+        "🇮🇹": "<tg-emoji emoji-id=5449723275628259037>🇮🇹</tg-emoji>",
+        "🇩🇪": "<tg-emoji emoji-id=5409360418520967565>🇩🇪</tg-emoji>",
+        "🇪🇸": "<tg-emoji emoji-id=5201957744877248121>🇪🇸</tg-emoji>",
+        "🇹🇷": "<tg-emoji emoji-id=5226948110873278599>🇹🇷</tg-emoji>",
+        "🇰🇿": "<tg-emoji emoji-id=5228718354658769982>🇰🇿</tg-emoji>",
     }
 
     async def _cmd_tensai(self, message: types.Message) -> None:
@@ -73,10 +92,19 @@ class TensaiMain(Module):
         """
          <lang> - set language
         """
-        lang = utils.get_args(message)
+        lang = utils.get_args(message).lower()
         if not lang:
             return await message.edit_text(self.strings("no_lang"))
+        
+        flag = utils.country_code_to_emoji(lang)
+        if not flag:
+            return await message.edit_text(self.strings("inccorrect_language"))
+        flag = self.emoji_flags.get(flag, flag)
 
         db.set("tensai.settings.lang", lang)
 
-        await message.edit_text(self.strings("lang").format(lang))
+        await message.edit_text(self.strings("lang").format(
+            flag=flag,
+            lang=lang.upper(),
+            unofficial=self.strings("no_support_lang") if not lang in SUPPORTED_LANGS else ""
+        ))
