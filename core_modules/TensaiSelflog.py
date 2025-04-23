@@ -1,5 +1,5 @@
 # description: selflog module
-# author: @vsecoder
+# author: @vsecoder, @fajox
 
 import os
 import asyncio
@@ -8,8 +8,43 @@ from aiogram.types import BusinessMessagesDeleted, FSInputFile
 from tensai.loader import Module
 from tensai import bot, redis, db
 
-
 class TensaiSelflog(Module):
+
+    strings: dict[str, dict[str, str]] = {
+        "ru": {
+            "selflog": "<b><tg-emoji emoji-id=6028565819225542441>✅</tg-emoji> Selflog чат установлен!</b>",
+            "selflog_on": "<b><tg-emoji emoji-id=6028565819225542441>✅</tg-emoji> Selflog включен!</b>",
+            "selflog_off": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> Selflog выключен!</b>",
+
+            "self_destructed_message": "<b>🔥 Самоуничтожающее сообщение:</b>",
+            "edit_message": "<b>✏️ Измененное сообщение, старое сообщение:</b>",
+            "deleted_message": "<b>🗑 Удаленное сообщение:</b>",
+            "open": "Открыть сообщение",
+        },
+        "en": {
+            "selflog": "<b><tg-emoji emoji-id=6028565819225542441>✅</tg-emoji> Selflog chat set!</b>",
+            "selflog_on": "<b><tg-emoji emoji-id=6028565819225542441>✅</tg-emoji> Selflog is on!</b>",
+            "selflog_off": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> Selflog is off!</b>",
+
+            "self_destructed_message": "<b>🔥 Self-destructed message:</b>",
+            "edit_message": "<b>✏️ Edit message, old message:</b>",
+            "deleted_message": "<b>🗑 Deleted message:</b>",
+            "open": "Open message",
+        }
+    }
+
+    async def _cmd_selflogmode(self, message: types.Message):
+        """
+         - enable or disable selflog mode
+        """
+
+        status = db.get("tensai.selflog.status", False)
+        new_status = not status
+        db.set("tensai.selflog.status", new_status)
+
+        status_text = "on" if new_status else "off"
+        await message.edit_text(self.strings(f"selflog_{status_text}"))
+
     async def _cmd_setchat(self, message: types.Message):
         """
         <chat_id> - enter chat id for selflog
@@ -20,10 +55,13 @@ class TensaiSelflog(Module):
             return
 
         db.set("tensai.selflog.chat_id", chat_id)
-        await message.reply("<b>✅ Selflog chat has been changed!</b>")
+        await message.edit_text(self.strings("selflog"))
 
     async def _bismsg_selflog(self, message: types.Message):
-        log_chat_id = db.get("tensai.selflog.chat_id")
+        status = db.get("tensai.selflog.status", False)
+        if not status:
+            return
+        log_chat_id = db.get("tensai.selflog.chat_id", None)
         if not log_chat_id:
             return
     
@@ -50,7 +88,7 @@ class TensaiSelflog(Module):
 
         await bot.send_message(
             chat_id=log_chat_id,
-            text="<b>🔥 Self destructed message:</b>",
+            text=self.strings("self_destructed_message"),
             message_thread_id=user["topic_id"],
         )
 
@@ -70,7 +108,10 @@ class TensaiSelflog(Module):
             await self.send_media(bot, log_chat_id, user, file_type, file_id)
 
     async def _bisedit_selflog(self, message: types.Message):
-        log_chat_id = db.get("tensai.selflog.chat_id")
+        status = db.get("tensai.selflog.status", False)
+        if not status:
+            return
+        log_chat_id = db.get("tensai.selflog.chat_id", None)
         if not log_chat_id:
             return
         
@@ -89,7 +130,7 @@ class TensaiSelflog(Module):
         await bot.send_message(
             chat_id=log_chat_id,
             message_thread_id=user["topic_id"],
-            text="<b>✏️ Edit message, old message:</b>",
+            text=self.strings("edit_message"),
         )
 
         await original_message.send_copy(
@@ -98,7 +139,7 @@ class TensaiSelflog(Module):
             reply_markup=types.InlineKeyboardMarkup(
                 inline_keyboard=[[
                     types.InlineKeyboardButton(
-                        text="Открыть",
+                        text=self.strings("open"),
                         url=f"tg://openmessage?user_id={original_message.from_user.id}&message_id={original_message.message_id}"
                     )
                 ]]
@@ -106,7 +147,10 @@ class TensaiSelflog(Module):
         ).as_(bot)
 
     async def _bisdel_selflog(self, business_messages: BusinessMessagesDeleted):
-        log_chat_id = db.get("tensai.selflog.chat_id")
+        status = db.get("tensai.selflog.status", False)
+        if not status:
+            return
+        log_chat_id = db.get("tensai.selflog.chat_id", None)
         if not log_chat_id:
             return
         
@@ -133,7 +177,7 @@ class TensaiSelflog(Module):
             await bot.send_message(
                 chat_id=log_chat_id,
                 message_thread_id=user["topic_id"],
-                text="<b>🗑 Deleted message:</b>",
+                text=self.strings("deleted_message"),
             )
 
             await original_message.send_copy(
