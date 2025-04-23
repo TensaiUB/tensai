@@ -36,9 +36,6 @@ class TensaiMain(Module):
         """
          - get info
         """
-        if message.from_user.id != db.get('tensai.user.telegram_id'):
-            return
-
         keyboard = InlineKeyboardBuilder()
 
         keyboard.row(
@@ -58,9 +55,6 @@ class TensaiMain(Module):
         """
          - update tensai
         """
-        if message.from_user.id != db.get("tensai.user.telegram_id"):
-            return
-
         repo = git.Repo(search_parent_directories=True)
         origin = repo.remotes.origin
 
@@ -79,9 +73,6 @@ class TensaiMain(Module):
         """
          <lang> - set language
         """
-        if message.from_user.id != db.get('tensai.user.telegram_id'):
-            return
-
         lang = utils.get_args(message)
         if not lang:
             return await message.edit_text(self.strings("no_lang"))

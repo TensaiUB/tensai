@@ -9,7 +9,7 @@ from aiogram.types import FSInputFile
 
 from tensai.loader import Module
 from tensai.main import loader
-from tensai import bot, db
+from tensai import bot
 
 
 class TensaiLoader(Module):
@@ -43,9 +43,6 @@ class TensaiLoader(Module):
         """
          - load module from a replied file
         """
-        if message.from_user.id != db.get('tensai.user.telegram_id'):
-            return
-        
         if not message.reply_to_message or not message.reply_to_message.document:
             return await message.reply(self.strings("missing_reply"))
 
@@ -63,9 +60,6 @@ class TensaiLoader(Module):
         """
          <url> - load module from URL
         """
-        if message.from_user.id != db.get('tensai.user.telegram_id'):
-            return
-        
         parts = message.text.split(" ")
         if len(parts) < 2 or not parts[1].startswith("http"):
             return await message.reply(self.strings("invalid_url"))
@@ -87,9 +81,6 @@ class TensaiLoader(Module):
         """
          <name> - unload module
         """
-        if message.from_user.id != db.get('tensai.user.telegram_id'):
-            return
-        
         parts = message.text.split(" ")
         if len(parts) < 2:
             return await message.reply("Module name required.")
@@ -105,9 +96,6 @@ class TensaiLoader(Module):
         """
          <name> - send module as file
         """
-        if message.from_user.id != db.get('tensai.user.telegram_id'):
-            return
-        
         parts = message.text.split(" ")
         if len(parts) < 2:
             return await message.reply("Module name required.")

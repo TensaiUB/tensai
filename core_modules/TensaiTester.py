@@ -3,7 +3,6 @@
 
 import time
 from aiogram import types
-from tensai import db
 from tensai.loader import Module
 
 class TensaiTester(Module):
@@ -20,9 +19,6 @@ class TensaiTester(Module):
         """
          - get ping
         """
-        if message.from_user.id != db.get('tensai.user.telegram_id'):
-            return
-
         start = time.monotonic()
         await message.edit_text("🏓")
         end = time.monotonic()

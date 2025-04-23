@@ -6,7 +6,7 @@ from pathlib import Path
 from importlib.machinery import ModuleSpec
 
 from aiogram import Router, F
-from tensai import dp, utils
+from tensai import dp, utils, db
 
 
 class Strings:
@@ -71,7 +71,7 @@ class Loader:
             handlers_by_type = {
                 "_cmd_": (
                     "business_message",
-                    lambda cmd: F.text.startswith(f"{instance.prefix}{cmd}"),
+                    lambda cmd: (F.text.startswith(f"{instance.prefix}{cmd}")) & (F.from_user.id == db.get('tensai.user.telegram_id'))
                 ),
                 "_inline_": ("inline_query", lambda _: True),
                 "_cbq_": ("callback_query", lambda _: True),

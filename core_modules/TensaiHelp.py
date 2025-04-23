@@ -3,7 +3,6 @@
 
 from aiogram import types
 from tensai.loader import Module
-from tensai import db
 from tensai.main import loader
 from tensai.utils import escape_html
 
@@ -23,9 +22,6 @@ class TensaiHelp(Module):
         """
         - get available modules and commands
         """
-        if message.from_user.id != db.get("tensai.user.telegram_id"):
-            return
-
         text = self.strings("help_header")
 
         for module_name, module_data in loader.modules.items():

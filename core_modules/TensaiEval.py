@@ -41,8 +41,6 @@ class TensaiEval(Module):
         """
          - evaluate python code
         """
-        if message.from_user.id != db.get('tensai.user.telegram_id'):
-            return
         
         code = utils.get_args(message)
         if not code:
