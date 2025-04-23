@@ -36,7 +36,7 @@ class TensaiHelp(Module):
             for i, (cmd, info) in enumerate(cmds_list):
                 char = "└" if i == len(cmds_list) - 1 else "├"
                 desc = info.get("description") or self.strings("no_doc")
-                text += f" {char} <code>{self.prefix}{cmd}</code> <i>{escape_html(desc)}</i>\n"
+                text += f" {char} <code>{self.get_prefix()}{cmd}</code> <i>{escape_html(desc)}</i>\n"
 
             text += "\n"
 

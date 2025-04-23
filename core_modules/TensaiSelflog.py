@@ -14,9 +14,6 @@ class TensaiSelflog(Module):
         """
         <chat_id> - enter chat id for selflog
         """
-        admin_id = db.get("tensai.user.telegram_id")
-        if message.from_user.id != admin_id:
-            return
 
         chat_id = message.text.split()[1]
         if not chat_id:
@@ -26,10 +23,13 @@ class TensaiSelflog(Module):
         await message.reply("<b>✅ Selflog chat has been changed!</b>")
 
     async def _bismsg_selflog(self, message: types.Message):
+        log_chat_id = db.get("tensai.selflog.chat_id")
+        if not log_chat_id:
+            return
+    
         await self.set_message(message)
 
         admin_id = db.get("tensai.user.telegram_id")
-        log_chat_id = db.get("tensai.selflog.chat_id")
 
         if not message.reply_to_message:
             return
@@ -70,6 +70,10 @@ class TensaiSelflog(Module):
             await self.send_media(bot, log_chat_id, user, file_type, file_id)
 
     async def _bisedit_selflog(self, message: types.Message):
+        log_chat_id = db.get("tensai.selflog.chat_id")
+        if not log_chat_id:
+            return
+        
         model_dump = await redis.get(f"{message.chat.id}:{message.message_id}")
         if not model_dump:
             return
@@ -81,8 +85,6 @@ class TensaiSelflog(Module):
         user = db.get(f"tensai.selflog.users.{original_message.from_user.id}")
         if not user:
             return
-
-        log_chat_id = db.get("tensai.selflog.chat_id")
 
         await bot.send_message(
             chat_id=log_chat_id,
@@ -104,6 +106,10 @@ class TensaiSelflog(Module):
         ).as_(bot)
 
     async def _bisdel_selflog(self, business_messages: BusinessMessagesDeleted):
+        log_chat_id = db.get("tensai.selflog.chat_id")
+        if not log_chat_id:
+            return
+        
         pipe = redis.pipeline()
         for message_id in business_messages.message_ids:
             pipe.get(f"{business_messages.chat.id}:{message_id}")
@@ -142,11 +148,7 @@ class TensaiSelflog(Module):
             await redis.delete(*keys_to_delete)
 
     async def set_message(self, message: types.Message):
-        admin_id = db.get("tensai.user.telegram_id")
         log_chat_id = db.get("tensai.selflog.chat_id")
-
-        if message.from_user.id == admin_id:
-            return
 
         user = db.get(f"tensai.selflog.users.{message.from_user.id}")
         if not user:
