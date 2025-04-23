@@ -148,6 +148,9 @@ class TensaiSelflog(Module):
             await redis.delete(*keys_to_delete)
 
     async def set_message(self, message: types.Message):
+        if message.from_user.id == db.get("tensai.user.telegram_id"):
+            return
+
         log_chat_id = db.get("tensai.selflog.chat_id")
 
         user = db.get(f"tensai.selflog.users.{message.from_user.id}")
