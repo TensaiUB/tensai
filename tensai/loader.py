@@ -108,6 +108,7 @@ class Loader:
             self.modules[module_name] = {
                 "name": module_name,
                 "router": router,
+                "core": core,
                 **handlers,
                 **self._parse_metadata(module_path, ["description", "author", "version", "requirements", "ba"]),
             }

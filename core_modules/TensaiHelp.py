@@ -25,7 +25,11 @@ class TensaiHelp(Module):
         text = self.strings("help_header")
 
         for module_name, module_data in loader.modules.items():
-            text += f"<b><tg-emoji emoji-id=5274034223886389748>▫️</tg-emoji> {module_name}</b>\n"
+            if module_data['core']:
+                emoji_list = "▪️"
+            else:
+                emoji_list = "<tg-emoji emoji-id=5274034223886389748>▫️</tg-emoji>"
+            text += f"<b>{emoji_list} {module_name}</b>\n"
 
             for cmd_type in ["business_message"]:
                 cmds = module_data.get(cmd_type, {})
