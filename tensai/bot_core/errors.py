@@ -31,6 +31,12 @@ async def error_handler(event: types.ErrorEvent):
             text=formatted_traceback
         )
     except Exception:
+        try:
+            await update.message.edit_text(
+                text=formatted_traceback
+            )
+        except:
+            pass
         await bot.send_message(
             chat_id=db.get("tensai.user.telegram_id"), text=formatted_traceback
         )
