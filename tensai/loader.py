@@ -1,6 +1,3 @@
-import os
-import inspect
-import importlib.util
 from types import ModuleType
 from pathlib import Path
 from importlib.machinery import ModuleSpec
@@ -9,7 +6,12 @@ from aiogram import Router
 from aiogram.types import Message, InlineQuery, CallbackQuery
 from tensai import dp, utils, db
 
+import os
+import sys
+import inspect
 import asyncio
+import subprocess
+import importlib.util
 
 class Strings:
     def __init__(self, strings: dict) -> None:
@@ -181,9 +183,13 @@ class Loader:
                 "handlers": module_handlers,
                 **self._parse_metadata(
                     module_path,
-                    ["description", "author", "version", "requirements", "ba"],
+                    ["description", "author", "version", "requires", "ba"],
                 ),
             }
+
+            requires = self.modules[module_name].get("requires", False)
+            if requires:
+                subprocess.check_call([sys.executable, "-m", "pip", "install", *requires.split(", ")])
 
             print(f"Module {module_name} loaded and handlers registered!")
 
