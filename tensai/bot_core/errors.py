@@ -30,7 +30,7 @@ async def error_handler(event: types.ErrorEvent):
         await update.business_message.edit_text(
             text=formatted_traceback
         )
-    except:
+    except Exception:
         await update.message.edit_text(
             text=formatted_traceback
         )

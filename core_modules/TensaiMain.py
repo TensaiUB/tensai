@@ -6,7 +6,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from tensai.loader import Module
 from tensai import db, utils
-from tensai.update import update
+from tensai.update import update, restart
 
 import git
 
@@ -120,7 +120,7 @@ class TensaiMain(Module):
         await message.edit_text(self.strings("lang").format(
             flag=flag,
             lang=lang.upper(),
-            unofficial=self.strings("no_support_lang") if not lang in SUPPORTED_LANGS else ""
+            unofficial=self.strings("no_support_lang") if lang not in SUPPORTED_LANGS else ""
         ))
 
     async def _cmd_setprefix(self, message: types.Message) -> None:
@@ -139,3 +139,10 @@ class TensaiMain(Module):
             new_prefix=prefix,
             back_to_old_prefix=f"{prefix}setprefix {old_prefix}",
         ))
+
+    async def _cmd_restart(self, message: types.Message) -> None:
+        """
+         - restart tensai
+        """
+        await message.edit_text("Restarting...")
+        await restart()

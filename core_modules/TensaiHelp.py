@@ -6,6 +6,7 @@ from tensai.loader import Module
 from tensai.main import loader
 from tensai.utils import escape_html
 
+
 class TensaiHelp(Module):
     strings: dict[str, dict[str, str]] = {
         "ru": {
@@ -25,20 +26,17 @@ class TensaiHelp(Module):
         text = self.strings("help_header")
 
         for module_name, module_data in loader.modules.items():
-            if module_data['core']:
-                emoji_list = "▪️"
-            else:
-                emoji_list = "<tg-emoji emoji-id=5274034223886389748>▫️</tg-emoji>"
-            text += f"<b>{emoji_list} {module_name}</b>\n"
+            text += f"<b><tg-emoji emoji-id=5274034223886389748>▫️</tg-emoji> {module_name}</b>\n"
 
-            for cmd_type in ["business_message"]:
-                cmds = module_data.get(cmd_type, {})
-                cmds_list = list(cmds.items())
+            handlers = module_data.get("handlers", {})
+            commands = handlers.get("command", {})
 
-                for i, (cmd, info) in enumerate(cmds_list):
-                    char = "└" if i == len(cmds_list) - 1 else "├"
-                    desc = info.get("description") or self.strings("no_doc")
-                    text += f" {char} <code>{self.get_prefix()}{cmd}</code> <i>{escape_html(desc)}</i>\n"
+            cmds_list = list(commands.items())
+
+            for i, (cmd, info) in enumerate(cmds_list):
+                char = "└" if i == len(cmds_list) - 1 else "├"
+                desc = info.get("description") or self.strings("no_doc")
+                text += f" {char} <code>{self.prefix}{cmd}</code> <i>{escape_html(desc)}</i>\n"
 
             text += "\n"
 
