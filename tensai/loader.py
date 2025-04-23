@@ -22,6 +22,7 @@ class Module:
     strings: dict[str, dict[str, str]] = {}
 
     def __init__(self) -> None:
+        self.get_prefix = utils.get_prefix
         self.prefix = utils.get_prefix()
         self.lang = utils.get_lang()
         self.strings = Strings(self.strings)

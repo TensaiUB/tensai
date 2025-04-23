@@ -25,6 +25,12 @@ class TensaiMain(Module):
             "no_support_lang": "<i><tg-emoji emoji-id=5355133243773435190>⚠️</tg-emoji> Данный язык официально не поддерживается.</i>",
             "inccorrect_language": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> Некорректный язык.</b>",
             "no_lang": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> Язык не выбран.</b>",
+
+            "no_prefix": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> Префикс не выбран.</b>",
+            "new_prefix": """<b><tg-emoji emoji-id=6028565819225542441>✅</tg-emoji> Префикс обновлён: <code>{new_prefix}</code></b>
+
+<b><tg-emoji emoji-id=5988023995125993550>🛠</tg-emoji> Чтобы изменить обратно:</b>     
+<code>{back_to_old_prefix}</code>""",
         },
         "en": {
             "tensai-info": """<b>💠 Tensai - fast and safe userbot.</b>
@@ -36,6 +42,12 @@ class TensaiMain(Module):
             "no_support_lang": "<i><tg-emoji emoji-id=5355133243773435190>⚠️</tg-emoji> This language is not officially supported.</i>",
             "inccorrect_language": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> Incorrect language.</b>",
             "no_lang": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> No language selected.</b>",
+
+            "no_prefix": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> No prefix chosen.</b>",
+            "new_prefix": """<b><tg-emoji emoji-id=6028565819225542441>✅</tg-emoji> Prefix updated: <code>{new_prefix}</code></b>
+
+<b><tg-emoji emoji-id=5988023995125993550>🛠</tg-emoji> Change it back:</b>     
+<code>{back_to_old_prefix}</code>""",
         },
     }
 
@@ -109,4 +121,21 @@ class TensaiMain(Module):
             flag=flag,
             lang=lang.upper(),
             unofficial=self.strings("no_support_lang") if not lang in SUPPORTED_LANGS else ""
+        ))
+
+    async def _cmd_setprefix(self, message: types.Message) -> None:
+        """
+         <new prefix> - set prefix
+        """
+        prefix = utils.get_args(message).lower()
+        if not prefix:
+            return await message.edit_text(self.strings("no_prefix"))
+        
+        old_prefix = self.get_prefix()
+
+        db.set("tensai.settings.prefix", prefix)
+
+        await message.edit_text(self.strings("new_prefix").format(
+            new_prefix=prefix,
+            back_to_old_prefix=f"{prefix}setprefix {old_prefix}",
         ))
