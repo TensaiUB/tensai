@@ -8,7 +8,6 @@ import atexit
 from tensai import bot, db
 from rich import print
 
-
 def get_startup_callback() -> callable:
     """
     Возвращает функцию, которая перезапускает скрипт при вызове.
@@ -25,25 +24,26 @@ def get_startup_callback() -> callable:
         *sys.argv[1:],
     )
 
-
 def die():
     """Метод для завершения текущего процесса."""
     if "DOCKER" in os.environ:
+        sys.exit(0)
+    elif os.name == "nt":
         sys.exit(0)
     else:
         os.killpg(os.getpgid(os.getpid()), signal.SIGTERM)
 
 
 def restart():
-    if "DO_NOT_RESTART" in os.environ:
+    if db.get("tensai.restart.do_not_restart", None):
         print("⚠️ Restart aborted due to DO_NOT_RESTART environment variable")
         sys.exit(0)
 
     print("🔄 Restarting...")
 
-    os.environ["DO_NOT_RESTART"] = "42"
+    db.set("tensai.restart.do_not_restart", "42")
 
-    if "DOCKER" in os.environ:
+    if "DOCKER" in os.environ or os.name == "nt":
         atexit.register(get_startup_callback())
     else:
         signal.signal(signal.SIGTERM, get_startup_callback())

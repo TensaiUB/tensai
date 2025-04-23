@@ -9,6 +9,7 @@ from aiogram import Router
 from aiogram.types import Message, InlineQuery, CallbackQuery
 from tensai import dp, utils, db
 
+import asyncio
 
 class Strings:
     def __init__(self, strings: dict) -> None:
@@ -132,6 +133,15 @@ class Loader:
 
                 handler_type = ""
 
+                if attr_name == "on_load":
+                    if asyncio.iscoroutinefunction(handler):
+                        try:
+                            loop = asyncio.get_running_loop()
+                            loop.create_task(handler())
+                        except RuntimeError:
+                            asyncio.run(handler())
+                    else:
+                        handler()
                 if attr_name.startswith("_cmd_"):
                     self.cmd_handlers.append(handler)
                     handler_type = "command"

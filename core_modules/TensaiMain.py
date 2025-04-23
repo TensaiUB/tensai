@@ -5,10 +5,11 @@ from aiogram import types
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from tensai.loader import Module
-from tensai import db, utils
+from tensai import bot, db, utils
 from tensai.update import update, restart
 
 import git
+import time
 
 SUPPORTED_LANGS = ["ru", "en"]
 
@@ -31,6 +32,10 @@ class TensaiMain(Module):
 
 <b><tg-emoji emoji-id=5988023995125993550>🛠</tg-emoji> Чтобы изменить обратно:</b>     
 <code>{back_to_old_prefix}</code>""",
+
+            "restarting": "<b><tg-emoji emoji-id=5328274090262275771>🔄</tg-emoji> Твой Tensai перезагружается...</b>",
+            "restarted": """<b><tg-emoji emoji-id=6028565819225542441>✅</tg-emoji> Tensai успешно перезагрузился!</b>
+<i>Перезагрузка заняла {sec} секунд</i>"""
         },
         "en": {
             "tensai-info": """<b>💠 Tensai - fast and safe userbot.</b>
@@ -48,6 +53,10 @@ class TensaiMain(Module):
 
 <b><tg-emoji emoji-id=5988023995125993550>🛠</tg-emoji> Change it back:</b>     
 <code>{back_to_old_prefix}</code>""",
+
+            "restarting": "<b><tg-emoji emoji-id=5328274090262275771>🔄</tg-emoji> Your Tensai is restarting...</b>",
+            "restarted": """<b><tg-emoji emoji-id=6028565819225542441>✅</tg-emoji> Tensai restarted successfully!</b>
+<i>Restart took {sec} seconds</i>"""
         },
     }
 
@@ -62,6 +71,22 @@ class TensaiMain(Module):
         "🇹🇷": "<tg-emoji emoji-id=5226948110873278599>🇹🇷</tg-emoji>",
         "🇰🇿": "<tg-emoji emoji-id=5228718354658769982>🇰🇿</tg-emoji>",
     }
+
+    async def on_load(self) -> None:
+        restart_message = db.get("tensai.restart.message", None)
+        if not restart_message:
+            return
+        db.set("tensai.restart.message", None)
+        db.set("tensai.restart.do_not_restart", None)
+        
+        await bot.edit_message_text(
+            chat_id=restart_message["chat_id"],
+            message_id=restart_message["message_id"],
+            business_connection_id=restart_message["business_connection_id"],
+            text=self.strings("restarted").format(
+                sec=int(time.time() - restart_message["start_time"]),
+            )
+        )
 
     async def _cmd_tensai(self, message: types.Message) -> None:
         """
@@ -144,5 +169,11 @@ class TensaiMain(Module):
         """
          - restart tensai
         """
-        await message.edit_text("Restarting...")
+        await message.edit_text(self.strings("restarting"))
+        db.set("tensai.restart.message", {
+            "message_id": message.message_id,
+            "chat_id": message.chat.id,
+            "business_connection_id": message.business_connection_id,
+            "start_time": time.time(),
+        })
         await restart()
