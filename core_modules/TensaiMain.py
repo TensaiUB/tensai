@@ -19,23 +19,23 @@ class TensaiMain(Module):
 
 <b><tg-emoji emoji-id=5346181118884331907>🐈‍⬛</tg-emoji> Github: <a href="https://github.com/TensaiUB/tensai">открыть</a></b>
             
-<tg-emoji emoji-id=5190458330719461749>🧑‍💻</tg-emoji> <b>Разработчики: @fajox & @vsecoder</b>""",
+<tg-emoji emoji-id=5190458330719461749>🧑‍💻</tg-emoji> <b>Разработчики: @vsecoder & @fajox</b>""",
 
             "lang": "<b>{flag} Язык установлен: {lang}</b>\n\n{unofficial}",
             "no_support_lang": "<i><tg-emoji emoji-id=5355133243773435190>⚠️</tg-emoji> Данный язык официально не поддерживается.</i>",
-            "inccorrect_language": "<b><tg-emoji emoji-id=5854929766146118183>❌</tg-emoji> Некорректный язык.</b>",
-            "no_lang": "<b><tg-emoji emoji-id=5854929766146118183>❌</tg-emoji> Язык не выбран.</b>",
+            "inccorrect_language": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> Некорректный язык.</b>",
+            "no_lang": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> Язык не выбран.</b>",
         },
         "en": {
             "tensai-info": """<b>💠 Tensai - fast and safe userbot.</b>
 
 <b><tg-emoji emoji-id=5346181118884331907>🐈‍⬛</tg-emoji> Github: <a href="https://github.com/TensaiUB/tensai">open</a></b>
             
-<tg-emoji emoji-id=5190458330719461749>🧑‍💻</tg-emoji> <b>Developers: @fajox & @vsecoder</b>""",
+<tg-emoji emoji-id=5190458330719461749>🧑‍💻</tg-emoji> <b>Developers: @vsecoder & @fajox</b>""",
             "lang": "<b>{flag} Language saved: {lang}</b>\n\n{unofficial}",
             "no_support_lang": "<i><tg-emoji emoji-id=5355133243773435190>⚠️</tg-emoji> This language is not officially supported.</i>",
-            "inccorrect_language": "<b><tg-emoji emoji-id=5854929766146118183>❌</tg-emoji> Incorrect language.</b>",
-            "no_lang": "<b><tg-emoji emoji-id=5854929766146118183>❌</tg-emoji> No language selected.</b>",
+            "inccorrect_language": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> Incorrect language.</b>",
+            "no_lang": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> No language selected.</b>",
         },
     }
 
@@ -64,9 +64,11 @@ class TensaiMain(Module):
             )
         )
 
-        await message.answer_animation(
-            animation="https://i.gifer.com/A54z.gif",
-            caption=self.strings("tensai-info"),
+        await message.edit_media(
+            media=types.InputMediaAnimation(
+                media="https://i.gifer.com/A54z.gif",
+                caption=self.strings("tensai-info"),
+            ),
             reply_markup=keyboard.as_markup()
         )
 
