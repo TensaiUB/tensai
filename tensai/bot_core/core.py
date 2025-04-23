@@ -26,8 +26,8 @@ class BotManager:
                     parse_mode=ParseMode.HTML,
                     )
                 )
-            except:
-                print("Invalid token. Please try again.")
+            except Exception as e:
+                print(f"Invalid token. Please try again. Error: {e}")
                 continue
 
             break

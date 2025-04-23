@@ -1,6 +1,6 @@
 from aiogram import types
 
-from tensai import dp, db
+from tensai import dp, db, bot
 
 import html
 import traceback
@@ -31,6 +31,6 @@ async def error_handler(event: types.ErrorEvent):
             text=formatted_traceback
         )
     except Exception:
-        await update.message.edit_text(
-            text=formatted_traceback
+        await bot.send_message(
+            chat_id=db.get("tensai.user.telegram_id"), text=formatted_traceback
         )
