@@ -1,6 +1,7 @@
 from tensai import dp, bot, db, install
 from tensai.loader import Loader
 from tensai.update import auto_updater
+from tensai.bot_core import errors
 
 import asyncio
 
