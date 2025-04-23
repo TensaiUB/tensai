@@ -21,9 +21,9 @@ class TensaiHelp(Module):
 
     async def _cmd_help(self, message: types.Message) -> None:
         """
-         - get available modules and commands
+        - get available modules and commands
         """
-        if message.from_user.id != db.get('tensai.user.telegram_id'):
+        if message.from_user.id != db.get("tensai.user.telegram_id"):
             return
 
         text = self.strings("help_header")
@@ -33,9 +33,12 @@ class TensaiHelp(Module):
 
             for cmd_type in ["business_message"]:
                 cmds = module_data.get(cmd_type, {})
-                for cmd, info in cmds.items():
-                    desc = info.get("description", None) or self.strings("no_doc")
-                    text += f" ├ <code>{self.prefix}{cmd}</code> <i>{escape_html(desc)}</i>\n"
+                cmds_list = list(cmds.items())
+
+                for i, (cmd, info) in enumerate(cmds_list):
+                    char = "└" if i == len(cmds_list) - 1 else "├"
+                    desc = info.get("description") or self.strings("no_doc")
+                    text += f" {char} <code>{self.prefix}{cmd}</code> <i>{escape_html(desc)}</i>\n"
 
             text += "\n"
 

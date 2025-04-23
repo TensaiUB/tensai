@@ -41,7 +41,7 @@ class TensaiLoader(Module):
 
     async def _cmd_lm(self, message: types.Message) -> None:
         """
-         - load module from a replied document
+         - load module from a replied file
         """
         if message.from_user.id != db.get('tensai.user.telegram_id'):
             return
@@ -61,7 +61,7 @@ class TensaiLoader(Module):
 
     async def _cmd_dlm(self, message: types.Message) -> None:
         """
-         <url> - download and load module from URL
+         <url> - load module from URL
         """
         if message.from_user.id != db.get('tensai.user.telegram_id'):
             return
@@ -85,7 +85,7 @@ class TensaiLoader(Module):
 
     async def _cmd_ulm(self, message: types.Message) -> None:
         """
-         <module_name> - unload module
+         <name> - unload module
         """
         if message.from_user.id != db.get('tensai.user.telegram_id'):
             return
@@ -103,7 +103,7 @@ class TensaiLoader(Module):
 
     async def _cmd_ml(self, message: types.Message) -> None:
         """
-         <module_name> - send module file as document
+         <name> - send module as file
         """
         if message.from_user.id != db.get('tensai.user.telegram_id'):
             return

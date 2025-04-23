@@ -5,7 +5,7 @@ from aiogram import types
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from tensai.loader import Module
-from tensai import db
+from tensai import db, utils
 from tensai.update import update
 
 import git
@@ -18,11 +18,8 @@ class TensaiMain(Module):
 <b><tg-emoji emoji-id=5346181118884331907>🐈‍⬛</tg-emoji> Github: <a href="https://github.com/TensaiUB/tensai">открыть</a></b>
             
 <tg-emoji emoji-id=5190458330719461749>🧑‍💻</tg-emoji> <b>Разработчики: @fajox & @vsecoder</b>""",
-    #        "tensai-info": (
-    #            "<blockquote>Tensai - так называют робота, который знает всё и умеет всё.\n"
-    #            "Он использует Telegram Bussiness API, поэтому не нарушает никаких правил.\n"
-    #            "Но работает он только в ЛС, так что используется для бизнеса.</blockquote>\n"
-    #        ),
+            "lang": "<b>Выбранный язык: {}</b>",
+            "no_lang": "<b>Язык не выбран.</b>",
         },
         "en": {
             "tensai-info": """<b>💠 Tensai - fast and safe userbot.</b>
@@ -30,11 +27,8 @@ class TensaiMain(Module):
 <b><tg-emoji emoji-id=5346181118884331907>🐈‍⬛</tg-emoji> Github: <a href="https://github.com/TensaiUB/tensai">open</a></b>
             
 <tg-emoji emoji-id=5190458330719461749>🧑‍💻</tg-emoji> <b>Developers: @fajox & @vsecoder</b>""",
-    #        "tensai-info": (
-    #            "<blockquote>Tensai - so-called robot who knows everything and can do everything.\n"
-    #            "He uses Telegram Bussiness API, so he doesn't break any rules.\n"
-    #            "But he works only in private chat, so he is used for business.</blockquote>\n"
-    #        )
+            "lang": "<b>Selected language: {}</b>",
+            "no_lang": "<b>No language selected.</b>",
         },
     }
 
@@ -44,7 +38,7 @@ class TensaiMain(Module):
         """
         if message.from_user.id != db.get('tensai.user.telegram_id'):
             return
-        
+
         keyboard = InlineKeyboardBuilder()
 
         keyboard.row(
@@ -53,7 +47,7 @@ class TensaiMain(Module):
                 url="https://github.com/TensaiUB/tensai",
             )
         )
-        
+
         await message.answer_animation(
             animation="https://i.gifer.com/A54z.gif",
             caption=self.strings("tensai-info"),
@@ -80,3 +74,18 @@ class TensaiMain(Module):
             await update(origin)
         else:
             await message.edit_text("No new update available.")
+
+    async def _cmd_setlang(self, message: types.Message) -> None:
+        """
+         <lang> - set language
+        """
+        if message.from_user.id != db.get('tensai.user.telegram_id'):
+            return
+
+        lang = utils.get_args(message)
+        if not lang:
+            return await message.edit_text(self.strings("no_lang"))
+
+        db.set("tensai.settings.lang", lang)
+
+        await message.edit_text(self.strings("lang").format(lang))
