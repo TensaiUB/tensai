@@ -52,7 +52,7 @@ class Loader:
         dp.include_router(self.router)
 
     def _register_base_handlers(self):
-        # Регистрирует основной роутер и хендлеры по видам событий
+        # Register main router and handlers
         @self.router.business_message()
         async def handle_business_message(message: Message):
             prefix = utils.get_prefix()
@@ -103,7 +103,7 @@ class Loader:
         return meta
 
     def load_module(self, module_path: Path, core: bool = False) -> None:
-        # Загружает модуль и добавляет его хендлеры в соответствующие списки
+        # Loads module and adds it's handlers in relevant lists
         try:
             spec: ModuleSpec = importlib.util.spec_from_file_location(
                 f"{'core_' if core else ''}modules.{module_path.stem}", module_path
@@ -197,13 +197,13 @@ class Loader:
             print(f"Error loading module {module_path.stem}: {e}")
 
     def _load_modules(self):
-        # Загружает все модули из директорий core_modules и modules
+        # Loads all modules from core_modules and modules dirs
         for path in [self.core_modules_dir, self.modules_dir]:
             for file in path.glob("*.py"):
                 if not file.name.startswith("_"):
                     self.load_module(file, core=(path == self.core_modules_dir))
 
     def unload_module(self, module_name: str):
-        # Удаляет модуль из памяти и файловой системы
+        # Deletes module from memory and file system
         os.remove(self.modules_dir / f"{module_name}.py")
         self.modules.pop(module_name, None)

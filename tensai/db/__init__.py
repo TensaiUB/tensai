@@ -5,7 +5,7 @@ DB_FILE_PATH: str = os.path.join("tensai/db", 'db.json')
 
 
 def _load() -> dict:
-    """Загружает данные из базы данных."""
+    """Loads datas from db."""
     if not os.path.exists(DB_FILE_PATH):
         return {}
     with open(DB_FILE_PATH, 'r', encoding='utf-8') as f:
@@ -13,7 +13,7 @@ def _load() -> dict:
 
 
 def _save(data: dict) -> None:
-    """Сохраняет данные в базу данных."""
+    """Save datas into db."""
     with open(DB_FILE_PATH, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
 

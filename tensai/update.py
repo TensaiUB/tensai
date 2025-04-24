@@ -10,8 +10,8 @@ from rich import print
 
 def get_startup_callback() -> callable:
     """
-    Возвращает функцию, которая перезапускает скрипт при вызове.
-    За первоисточник взят данный код:
+    Returns function, that restarts script at call.
+    First source has been taken from:
     https://github.com/hikariatama/Hikka/blob/35bd52e24026bb6cb6e7a4ef2f85e9ca900b16aa/hikka/_internal.py#L20
     """
     return lambda *_: os.execl(
@@ -25,7 +25,7 @@ def get_startup_callback() -> callable:
     )
 
 def die():
-    """Метод для завершения текущего процесса."""
+    """Method that stops current process."""
     if "DOCKER" in os.environ:
         sys.exit(0)
     elif os.name == "nt":
