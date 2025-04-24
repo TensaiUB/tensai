@@ -50,10 +50,6 @@ def restart():
 
     die()
 
-async def update(origin):
-    origin.pull()
-    await restart()
-
 async def auto_updater():
     while True:
         await asyncio.sleep(300)

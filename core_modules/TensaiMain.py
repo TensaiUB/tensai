@@ -6,7 +6,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from tensai.loader import Module
 from tensai import bot, db, utils
-from tensai.update import update, restart
+from tensai.update import restart
 
 import git
 import time
@@ -35,7 +35,11 @@ class TensaiMain(Module):
 
             "restarting": "<b><tg-emoji emoji-id=5328274090262275771>🔄</tg-emoji> Твой Tensai перезагружается...</b>",
             "restarted": """<b><tg-emoji emoji-id=6028565819225542441>✅</tg-emoji> Tensai успешно перезагрузился!</b>
-<i>Перезагрузка заняла {sec} секунд</i>"""
+<i>Перезагрузка заняла {sec} секунд</i>""",
+
+            "checking_update": "<b><tg-emoji emoji-id=5328274090262275771>🔄</tg-emoji> Проверка обновлений...</b>",
+            "updating": "<b><tg-emoji emoji-id=5328274090262275771>🔄</tg-emoji> Обновление...</b>",
+            "no_update": "<b><tg-emoji emoji-id=6028565819225542441>✅</tg-emoji> Установлена последняя версия!</b>"
         },
         "en": {
             "tensai-info": """<b>💠 Tensai - fast and safe userbot.</b>
@@ -56,7 +60,12 @@ class TensaiMain(Module):
 
             "restarting": "<b><tg-emoji emoji-id=5328274090262275771>🔄</tg-emoji> Your Tensai is restarting...</b>",
             "restarted": """<b><tg-emoji emoji-id=6028565819225542441>✅</tg-emoji> Tensai restarted successfully!</b>
-<i>Restart took {sec} seconds</i>"""
+<i>Restart took {sec} seconds</i>""",
+
+            "checking_update": "<b><tg-emoji emoji-id=5325731315004218660>🔄</tg-emoji> Checking for updates...</b>",
+            "updating": "<b><tg-emoji emoji-id=5328274090262275771>🔄</tg-emoji> Updating...</b>",
+            "no_update": "<b><tg-emoji emoji-id=6028565819225542441>✅</tg-emoji> Latest version installed!</b>"
+
         },
     }
 
@@ -113,6 +122,8 @@ class TensaiMain(Module):
         """
          - update tensai
         """
+        await message.edit_text(self.strings("checking_update"))
+
         repo = git.Repo(search_parent_directories=True)
         origin = repo.remotes.origin
 
@@ -122,10 +133,11 @@ class TensaiMain(Module):
         remote_commit = repo.refs[f"origin/{repo.active_branch.name}"].commit.hexsha
 
         if local_commit != remote_commit:
-            await message.edit_text("New update available, updating...")
-            await update(origin)
+            await message.edit_text(self.strings("updating"))
+            origin.pull()
+            await self._cmd_restart(message)
         else:
-            await message.edit_text("No new update available.")
+            await message.edit_text(self.strings("no_update"))
 
     async def _cmd_setlang(self, message: types.Message) -> None:
         """
