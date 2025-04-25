@@ -68,6 +68,11 @@ class TensaiLoader(Module):
 
         file_name = message.reply_to_message.document.file_name
         path = os.path.join(os.getcwd(), loader.modules_dir, file_name)
+        name = file_name.replace(".py", "")
+
+        if name in loader.modules:
+            await message.reply("Module already loaded, deleting...")
+            loader.unload_module(name)
 
         try:
             await bot.download(message.reply_to_message.document.file_id, destination=path)
@@ -87,6 +92,10 @@ class TensaiLoader(Module):
         url = parts[1]
         name = url.split("/")[-1]
         path = os.path.join(os.getcwd(), loader.modules_dir, name)
+
+        if name in loader.modules:
+            await message.reply("Module already loaded, deleting...")
+            loader.unload_module(name)
 
         try:
             code = await self._request(url)
