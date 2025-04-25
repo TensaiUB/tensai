@@ -62,7 +62,7 @@ class Loader:
         async def handle_business_message(message: Message):
             prefix = utils.get_prefix()
             user_id = db.get("tensai.user.telegram_id")
-            owners = db.get("tensai.security.owners")
+            owners = db.get("tensai.security.owners", [])
             for handler in self.cmd_handlers:
                 if not getattr(message, "text", ""):
                     continue
