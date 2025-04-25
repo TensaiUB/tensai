@@ -1,6 +1,6 @@
 from aiogram import types
 
-from tensai import dp, db, bot
+from tensai import dp, db, bot, utils
 
 import html
 import traceback
@@ -27,12 +27,14 @@ async def error_handler(event: types.ErrorEvent):
     )
 
     try:
-        await update.business_message.edit_text(
+        await utils.answer(
+            update.business_message,
             text=formatted_traceback
         )
     except Exception:
         try:
-            await update.message.edit_text(
+            await utils.answer(
+                update.message.edit_text,
                 text=formatted_traceback
             )
         except:

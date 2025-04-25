@@ -121,7 +121,8 @@ class TensaiMain(Module):
             )
         )
 
-        await message.edit_media(
+        await utils.answer_media(
+            message=message,
             media=types.InputMediaAnimation(
                 media="https://i.gifer.com/A54z.gif",
                 caption=self.strings("tensai-info"),
@@ -133,7 +134,7 @@ class TensaiMain(Module):
         """
          - update tensai
         """
-        await message.edit_text(self.strings("checking_update"))
+        message = await utils.answer(message, self.strings("checking_update"))
 
         repo = git.Repo(search_parent_directories=True)
         origin = repo.remotes.origin
@@ -144,11 +145,11 @@ class TensaiMain(Module):
         remote_commit = repo.refs[f"origin/{repo.active_branch.name}"].commit.hexsha
 
         if local_commit != remote_commit:
-            await message.edit_text(self.strings("updating"))
+            await utils.answer(message, self.strings("updating"))
             origin.pull()
             await self._cmd_restart(message)
         else:
-            await message.edit_text(self.strings("no_update"))
+            await utils.answer(message, self.strings("no_update"))
 
     async def _cmd_setlang(self, message: types.Message) -> None:
         """
@@ -156,16 +157,16 @@ class TensaiMain(Module):
         """
         lang = utils.get_args(message).lower()
         if not lang:
-            return await message.edit_text(self.strings("no_lang"))
+            return await utils.answer(message, self.strings("no_lang"))
         
         flag = utils.country_code_to_emoji(lang)
         if not flag:
-            return await message.edit_text(self.strings("inccorrect_language"))
+            return await utils.answer(message, self.strings("inccorrect_language"))
         flag = self.emoji_flags.get(flag, flag)
 
         db.set("tensai.settings.lang", lang)
 
-        await message.edit_text(self.strings("lang").format(
+        await utils.answer(message, self.strings("lang").format(
             flag=flag,
             lang=lang.upper(),
             unofficial=self.strings("no_support_lang") if lang not in SUPPORTED_LANGS else ""
@@ -177,13 +178,13 @@ class TensaiMain(Module):
         """
         prefix = utils.get_args(message).lower()
         if not prefix:
-            return await message.edit_text(self.strings("no_prefix"))
+            return await utils.answer(message, self.strings("no_prefix"))
         
         old_prefix = self.get_prefix()
 
         db.set("tensai.settings.prefix", prefix)
 
-        await message.edit_text(self.strings("new_prefix").format(
+        await utils.answer(message, self.strings("new_prefix").format(
             new_prefix=prefix,
             back_to_old_prefix=f"{prefix}setprefix {old_prefix}",
         ))
@@ -192,7 +193,7 @@ class TensaiMain(Module):
         """
          - restart tensai
         """
-        await message.edit_text(self.strings("restarting"))
+        message = await utils.answer(message, self.strings("restarting"))
         db.set("tensai.restart.message", {
             "message_id": message.message_id,
             "chat_id": message.chat.id,
@@ -236,7 +237,7 @@ class TensaiMain(Module):
         origin = repo.remotes.origin
         origin.pull()
 
-        await message.edit_text(self.strings("restarting"))
+        await utils.answer(message, self.strings("restarting"))
         db.set("tensai.restart.message", {
             "message_id": message.message_id,
             "chat_id": message.chat.id,

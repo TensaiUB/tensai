@@ -1,4 +1,5 @@
 from aiogram import types
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from tensai import db
 
@@ -118,3 +119,46 @@ def country_code_to_emoji(country_code):
         return ''.join(chr(ord(char.upper()) + OFFSET) for char in country_code)
     except:
         return '🏳️'
+    
+async def answer(
+    message: types.Message, 
+    text: str,
+    reply_markup: InlineKeyboardBuilder | None = None
+) -> types.Message:
+    if not reply_markup:
+        reply_markup = InlineKeyboardBuilder().as_markup()
+    
+    owner_id = db.get("tensai.user.telegram_id", 0)
+    if message.from_user.id != owner_id:
+        return await message.answer(
+            text=text,
+            reply_markup=reply_markup
+        )
+    elif not message.text:
+        return await message.edit_caption(
+            caption=text,
+            reply_markup=reply_markup
+        )
+    else:
+        return await message.edit_text(
+            text=text,
+            reply_markup=reply_markup
+        )
+
+async def answer_media(
+    message: types.Message,
+    media: types.InputMediaUnion,
+    reply_markup: InlineKeyboardBuilder | None = None
+) -> types.Message:
+    owner_id = db.get("tensai.user.telegram_id", 0)
+    if message.from_user.id != owner_id:
+        message = await message.answer(
+            text="<i>Loading media...</i>"
+        )
+    if not reply_markup:
+        reply_markup = InlineKeyboardBuilder().as_markup()
+
+    return await message.edit_media(
+        media=media,
+        reply_markup=reply_markup
+    )

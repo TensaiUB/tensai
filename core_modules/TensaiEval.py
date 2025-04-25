@@ -43,9 +43,9 @@ class TensaiEval(Module):
         
         code = utils.get_args(message)
         if not code:
-            return await message.edit_text(self.strings('no_code'))
+            return await utils.answer(message, self.strings('no_code'))
         
-        await message.edit_text(self.strings('executing'))
+        await utils.answer(message, self.strings('executing'))
 
         scope = {
             "self": self,
@@ -65,7 +65,7 @@ class TensaiEval(Module):
             result_text = utils.escape_html(str(e))
         stop_time = time.perf_counter()
 
-        await message.edit_text(self.strings('result').format(
+        await utils.answer(message, self.strings('result').format(
             code=code,
             result=result_text,
             seconds=round(stop_time - start_time, 2),

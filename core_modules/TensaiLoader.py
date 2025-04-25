@@ -127,9 +127,9 @@ class TensaiLoader(Module):
         """
         module_name = utils.get_args(message)
         if not module_name:
-            return await message.edit_text(self.strings("no_module_name"))
+            return await utils.answer(message, self.strings("no_module_name"))
         
-        m = await message.edit_text(self.strings("searching_module"))
+        m = await utils.answer(message, self.strings("searching_module"))
 
         best_match_path = None
         best_match_score = 0
@@ -152,7 +152,7 @@ class TensaiLoader(Module):
                         best_match_path = os.path.join(root, file)
 
         if best_match_score < 80:
-            return await message.edit_text(self.strings("module_not_found"))
+            return await utils.answer(message, self.strings("module_not_found"))
         
         module_name = os.path.basename(best_match_path).replace(".py", "")
 

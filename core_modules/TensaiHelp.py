@@ -2,8 +2,10 @@
 # author: @vsecoder, @fajox
 
 from aiogram import types
+
 from tensai.loader import Module
 from tensai.main import loader
+from tensai import utils
 from tensai.utils import escape_html
 
 
@@ -40,4 +42,4 @@ class TensaiHelp(Module):
 
             text += "\n"
 
-        await message.edit_text(text)
+        await utils.answer(message, text)

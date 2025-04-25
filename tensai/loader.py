@@ -62,6 +62,7 @@ class Loader:
         async def handle_business_message(message: Message):
             prefix = utils.get_prefix()
             user_id = db.get("tensai.user.telegram_id")
+            owners = db.get("tensai.security.owners")
             for handler in self.cmd_handlers:
                 if not getattr(message, "text", ""):
                     continue
@@ -69,7 +70,7 @@ class Loader:
                 name = handler.__name__.replace("_cmd_", "")
                 if (
                     message.text.startswith(f"{prefix}{name}")
-                    and message.from_user.id == user_id
+                    and (message.from_user.id == user_id or message.from_user.id in owners)
                 ):
                     await handler(message)
             for handler in self.bismsg_handlers:

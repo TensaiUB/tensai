@@ -3,7 +3,7 @@
 
 from aiogram import types
 
-from tensai import start_time
+from tensai import start_time, utils
 from tensai.loader import Module
 
 import time
@@ -25,11 +25,11 @@ class TensaiTester(Module):
          - get ping
         """
         start = time.monotonic()
-        await message.edit_text("🏓")
+        await utils.answer(message, "🏓")
         end = time.monotonic()
 
         ping_ms = int((end - start) * 1000)
-        await message.edit_text(self.strings('ping').format(ms=ping_ms))
+        await utils.answer(message, self.strings('ping').format(ms=ping_ms))
 
     async def _cmd_uptime(self, message: types.Message) -> None:
         """
@@ -39,4 +39,4 @@ class TensaiTester(Module):
         uptime = time.time() - start_time
         uptime = time.strftime("%H:%M:%S", time.gmtime(uptime))
 
-        await message.edit_text(self.strings('uptime').format(uptime=uptime))
+        await utils.answer(message, self.strings('uptime').format(uptime=uptime))
