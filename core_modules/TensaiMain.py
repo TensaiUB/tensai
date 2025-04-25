@@ -221,6 +221,30 @@ class TensaiMain(Module):
             reply_markup=keyboard.as_markup()
         )
 
+    async def _cbq_tensai_update(self, callback: types.CallbackQuery) -> None:
+        """
+         - update tensai
+        """
+
+        if callback.data != "tensai_update":
+            return
+        
+        await callback.message.delete()
+        message = await callback.message.answer(self.strings("updating"))
+
+        repo = git.Repo(search_parent_directories=True)
+        origin = repo.remotes.origin
+        origin.pull()
+
+        await message.edit_text(self.strings("restarting"))
+        db.set("tensai.restart.message", {
+            "message_id": message.message_id,
+            "chat_id": message.chat.id,
+            "business_connection_id": None,
+            "start_time": time.time(),
+        })
+        await restart()
+
     async def update_checker(self) -> None:
 
         keyboard = InlineKeyboardBuilder()
