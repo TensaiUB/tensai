@@ -1,4 +1,4 @@
-# description: security module of Tensai
+# description: Security module of Tensai
 # author: @fajox
 
 from aiogram import types
