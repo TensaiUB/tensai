@@ -2,7 +2,7 @@ from types import ModuleType
 from pathlib import Path
 from importlib.machinery import ModuleSpec
 
-from aiogram import Router
+from aiogram import Router, F
 from aiogram.types import Message, InlineQuery, CallbackQuery
 from tensai import dp, utils, db
 
@@ -41,13 +41,18 @@ class Loader:
         self.core_modules_dir = Path("core_modules")
         self.modules_dir = Path("modules")
         self.modules: dict = {}
+
         self.cmd_handlers = []
+        self.botcmd_handlers = []
         self.inline_handlers = []
+        self.botmsg_handlers = []
         self.cbq_handlers = []
         self.bismsg_handlers = []
         self.bisedit_handlers = []
         self.bisdel_handlers = []
+
         self.router = Router()
+
         self._register_base_handlers()
         dp.include_router(self.router)
 
@@ -70,6 +75,18 @@ class Loader:
             for handler in self.bismsg_handlers:
                 await handler(message)
 
+        @self.router.message(F.text.startswith("/"))
+        async def handle_business_message(message: Message):
+            for handler in self.botcmd_handlers:
+                if not getattr(message, "text", ""):
+                    continue
+
+                name = handler.__name__.replace("_botcmd_", "")
+                if (
+                    message.text.startswith(f"/{name}")
+                ):
+                    await handler(message)
+
         @self.router.edited_business_message()
         async def handle_edited_message(message: Message):
             for handler in self.bisedit_handlers:
@@ -78,6 +95,11 @@ class Loader:
         @self.router.deleted_business_messages()
         async def handle_deleted_message(message: Message):
             for handler in self.bisdel_handlers:
+                await handler(message)
+
+        @self.router.message()
+        async def handle_botmsg(message: Message):
+            for handler in self.botmsg_handlers:
                 await handler(message)
 
         @self.router.inline_query()
@@ -146,9 +168,15 @@ class Loader:
                 if attr_name.startswith("_cmd_"):
                     self.cmd_handlers.append(handler)
                     handler_type = "command"
+                if attr_name.startswith("_botcmd_"):
+                    self.botcmd_handlers.append(handler)
+                    handler_type = "botcmd"
                 elif attr_name.startswith("_inline_"):
                     self.inline_handlers.append(handler)
                     handler_type = "inline"
+                elif attr_name.startswith("_botmsg_"):
+                    self.botmsg_handlers.append(handler)
+                    handler_type = "bot message"
                 elif attr_name.startswith("_cbq_"):
                     self.cbq_handlers.append(handler)
                     handler_type = "callback query"
