@@ -1,6 +1,5 @@
 # description: simple evaluator module
 # author: @vsecoder, @fajox
-# requires: meval
 
 from aiogram import types
 from tensai import bot, db, utils
