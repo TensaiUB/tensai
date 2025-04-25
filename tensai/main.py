@@ -1,6 +1,5 @@
 from tensai import dp, bot, db, install
 from tensai.loader import Loader
-from tensai.update import auto_updater
 from tensai.bot_core import errors
 
 import asyncio
@@ -20,5 +19,3 @@ async def run_bot() -> None:
         await install.install_user()
 
     await start_polling()
-
-    asyncio.create_task(auto_updater())

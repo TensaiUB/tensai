@@ -10,6 +10,7 @@ from tensai.update import restart
 
 import git
 import time
+import asyncio
 
 SUPPORTED_LANGS = ["ru", "en"]
 
@@ -39,7 +40,11 @@ class TensaiMain(Module):
 
             "checking_update": "<b><tg-emoji emoji-id=5328274090262275771>🔄</tg-emoji> Проверка обновлений...</b>",
             "updating": "<b><tg-emoji emoji-id=5328274090262275771>🔄</tg-emoji> Обновление...</b>",
-            "no_update": "<b><tg-emoji emoji-id=6028565819225542441>✅</tg-emoji> Установлена последняя версия!</b>"
+            "no_update": "<b><tg-emoji emoji-id=6028565819225542441>✅</tg-emoji> Установлена последняя версия!</b>",
+
+            "bot_update_notification": """<b>🔄 Вышло обновление! <a href="{local_commit_link}">{local_commit}</a> → <a href="{remote_commit_link}">{remote_commit}</a>
+            
+🌳 Ветка: <code>{branch}</code></b>"""
         },
         "en": {
             "tensai-info": """<b>💠 Tensai - fast and safe userbot.</b>
@@ -64,7 +69,11 @@ class TensaiMain(Module):
 
             "checking_update": "<b><tg-emoji emoji-id=5325731315004218660>🔄</tg-emoji> Checking for updates...</b>",
             "updating": "<b><tg-emoji emoji-id=5328274090262275771>🔄</tg-emoji> Updating...</b>",
-            "no_update": "<b><tg-emoji emoji-id=6028565819225542441>✅</tg-emoji> Latest version installed!</b>"
+            "no_update": "<b><tg-emoji emoji-id=6028565819225542441>✅</tg-emoji> Latest version installed!</b>",
+
+            "bot_update_notification": """<b>🔄 New update! <a href="{local_commit_link}">{local_commit}</a> → <a href="{remote_commit_link}">{remote_commit}</a>
+            
+🌳 Branch: <code>{branch}</code></b>"""
 
         },
     }
@@ -82,6 +91,8 @@ class TensaiMain(Module):
     }
 
     async def on_load(self) -> None:
+        asyncio.create_task(self.update_checker())
+
         restart_message = db.get("tensai.restart.message", None)
         if not restart_message:
             return
@@ -209,3 +220,43 @@ class TensaiMain(Module):
             caption=self.strings("tensai-info"),
             reply_markup=keyboard.as_markup()
         )
+
+    async def update_checker(self) -> None:
+
+        keyboard = InlineKeyboardBuilder()
+
+        keyboard.row(
+            types.InlineKeyboardButton(
+                text="🔄 Update",
+                callback_data="tensai_update",
+            )
+        )
+
+        while True:
+            repo = git.Repo(search_parent_directories=True)
+            origin = repo.remotes.origin
+
+            origin.fetch()
+
+            local_commit = repo.head.commit.hexsha
+            remote_commit = repo.refs[f"origin/{repo.active_branch.name}"].commit.hexsha
+
+            if local_commit == remote_commit:
+                break
+
+            owner = db.get("tensai.user.telegram_id")
+
+            await bot.send_animation(
+                chat_id=owner,
+                animation="https://i.gifer.com/3WMZ.gif",
+                caption=self.strings("bot_update_notification").format(
+                    local_commit=local_commit[:7],
+                    remote_commit=remote_commit[:7],
+                    local_commit_link=f"https://github.com/TensaiUB/tensai/commit/{local_commit}",
+                    remote_commit_link=f"https://github.com/TensaiUB/tensai/commit/{remote_commit}",
+                    branch=repo.active_branch.name,
+                ),
+                reply_markup=keyboard.as_markup()
+            )
+
+            await asyncio.sleep(300)
