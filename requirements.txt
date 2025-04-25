@@ -6,3 +6,4 @@ fakeredis
 redis
 fuzzywuzzy
 python-Levenshtein
+setuptools
