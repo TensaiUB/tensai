@@ -1,11 +1,9 @@
 import os
 import sys
-import asyncio
-import git
 import signal
 import atexit
 
-from tensai import bot, db
+from tensai import db
 from rich import print
 
 def get_startup_callback() -> callable:
@@ -26,9 +24,7 @@ def get_startup_callback() -> callable:
 
 def die():
     """Method that stops current process."""
-    if "DOCKER" in os.environ:
-        sys.exit(0)
-    elif os.name == "nt":
+    if "DOCKER" in os.environ or os.name == "nt":
         sys.exit(0)
     else:
         os.killpg(os.getpgid(os.getpid()), signal.SIGTERM)
