@@ -7,6 +7,7 @@ from tensai import utils
 from tensai.bot_core import BotManager
 
 import os
+import time
 import asyncio
 
 git_info = asyncio.run(utils.get_git_info())
@@ -41,3 +42,5 @@ redis = asyncio.run(get_redis())
 
 manager = BotManager()
 bot, dp = manager.load()
+
+start_time = time.time()

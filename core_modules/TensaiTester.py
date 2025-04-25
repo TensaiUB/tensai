@@ -1,17 +1,22 @@
 # description: simple ping module
 # author: @vsecoder, @fajox
 
-import time
 from aiogram import types
+
+from tensai import start_time
 from tensai.loader import Module
+
+import time
 
 class TensaiTester(Module):
     strings: dict[str, dict[str, str]] = {
         "ru": {
             "ping": "<b><tg-emoji emoji-id=5931472654660800739>🏓</tg-emoji> Понг! Пинг <code>{ms}</code> ms.</b>",
+            "uptime": "<b><tg-emoji emoji-id=5431449001532594346>⚡️</tg-emoji> Текущий аптайм: <code>{uptime}</code></b>",
         },
         "en": {
             "ping": "<b><tg-emoji emoji-id=5931472654660800739>🏓</tg-emoji> Pong! Ping <code>{ms}</code> ms.</b>",
+            "uptime": "<b><tg-emoji emoji-id=5431449001532594346>⚡️</tg-emoji> Current uptime: <code>{uptime}</code></b>",
         },
     }
 
@@ -25,3 +30,13 @@ class TensaiTester(Module):
 
         ping_ms = int((end - start) * 1000)
         await message.edit_text(self.strings('ping').format(ms=ping_ms))
+
+    async def _cmd_uptime(self, message: types.Message) -> None:
+        """
+         - get uptime
+        """
+
+        uptime = time.time() - start_time
+        uptime = time.strftime("%H:%M:%S", time.gmtime(uptime))
+
+        await message.edit_text(self.strings('uptime').format(uptime=uptime))
