@@ -189,3 +189,23 @@ class TensaiMain(Module):
             "start_time": time.time(),
         })
         await restart()
+
+    async def _botcmd_start(self, message: types.Message) -> None:
+        """
+         - bot's start command
+        """
+        
+        keyboard = InlineKeyboardBuilder()
+
+        keyboard.row(
+            types.InlineKeyboardButton(
+                text="Github",
+                url="https://github.com/TensaiUB/tensai",
+            )
+        )
+
+        await message.answer_animation(
+            animation="https://i.gifer.com/A54z.gif",
+            caption=self.strings("tensai-info"),
+            reply_markup=keyboard.as_markup()
+        )

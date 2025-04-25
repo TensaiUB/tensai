@@ -170,7 +170,7 @@ class Loader:
                     handler_type = "command"
                 if attr_name.startswith("_botcmd_"):
                     self.botcmd_handlers.append(handler)
-                    handler_type = "botcmd"
+                    handler_type = "bot command"
                 elif attr_name.startswith("_inline_"):
                     self.inline_handlers.append(handler)
                     handler_type = "inline"
