@@ -127,6 +127,11 @@ class Loader:
     def load_module(self, module_path: Path, core: bool = False) -> None:
         # Loads module and adds it's handlers in relevant lists
         try:
+            requires = self._parse_metadata(module_path, ["requires"]).get("requires")
+            if requires:
+                print("Installing module's requirements...")
+                subprocess.check_call([sys.executable, "-m", "pip", "install", *requires.split(", ")])
+
             spec: ModuleSpec = importlib.util.spec_from_file_location(
                 f"{'core_' if core else ''}modules.{module_path.stem}", module_path
             )
@@ -214,10 +219,6 @@ class Loader:
                     ["description", "author", "version", "requires", "ba"],
                 ),
             }
-
-            requires = self.modules[module_name].get("requires", False)
-            if requires:
-                subprocess.check_call([sys.executable, "-m", "pip", "install", *requires.split(", ")])
 
             print(f"Module {module_name} loaded and handlers registered!")
 
