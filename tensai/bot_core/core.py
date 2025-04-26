@@ -2,9 +2,11 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
-from tensai import db
+from tensai import db, web
 
 from rich import print
+
+import asyncio
 
 class BotManager:
     def __init__(self) -> None:
@@ -40,7 +42,11 @@ class BotManager:
         token: str | None = db.get('tensai.bot.token', None)
 
         if not token:
-            token: str = self._install_bot()
+            if not db.get("tensai.settings.web.use_web"):
+                token: str = self._install_bot()
+            else:
+                token: str = asyncio.run(web.start_webinstaller())
+
             db.set('tensai.bot.token', token)
             token: str = db.get('tensai.bot.token')
 

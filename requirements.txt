@@ -7,3 +7,6 @@ redis
 fuzzywuzzy
 python-Levenshtein
 setuptools
+fastapi
+uvicorn
+python-multipart

@@ -3,13 +3,14 @@ from fakeredis import aioredis as fake_aioredis
 from redis.asyncio import Redis
 from redis.exceptions import ConnectionError, RedisError
 
-from tensai import utils
+from tensai import db, utils
 from tensai.bot_core import BotManager
 
 import os
 import sys
 import time
 import asyncio
+import argparse
 import subprocess
 import pkg_resources
 
@@ -65,6 +66,37 @@ async def get_redis():
         return await fake_aioredis.FakeRedis(decode_responses=True)
 
 redis = asyncio.run(get_redis())
+
+if '--use-web' in sys.argv:
+    web = True
+elif '--no-web' in sys.argv:
+    web = False
+else:
+    if not db.get("tensai.settings.web"):
+        web_input = input("\nDo you want to use web as default? (y/n): ").strip().lower()
+        web = web_input == "y"
+    else:
+        web = db.get("tensai.settings.web.use_web")
+
+port = db.get("tensai.settings.web.port", 8080)
+
+if web:
+    parser = argparse.ArgumentParser(description="Get args")
+    parser.add_argument('--port', type=str, help='Port', required=False)
+    args, unknown = parser.parse_known_args()
+
+    if args.port:
+        port = args.port
+    else:
+        if not db.get("tensai.settings.web"):
+            port_input = input("What port do you want to use? (Press enter to use default 8080): ").strip()
+            if port_input:
+                port = port_input
+
+db.set("tensai.settings.web", {
+    "use_web": web,
+    "port": port
+})
 
 manager = BotManager()
 bot, dp = manager.load()
