@@ -91,7 +91,7 @@ if web:
         if not db.get("tensai.settings.web"):
             port_input = input("What port do you want to use? (Press enter to use default 8080): ").strip()
             if port_input:
-                port = port_input
+                port = int(port_input)
 
 db.set("tensai.settings.web", {
     "use_web": web,
