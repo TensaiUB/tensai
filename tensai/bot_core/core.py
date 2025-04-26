@@ -21,15 +21,8 @@ class BotManager:
         while True:
             token: str = input("Enter your bot token from @BotFather (make sure business mode is on): ")
 
-            try:
-                Bot(
-                    token=token,
-                        default=DefaultBotProperties(
-                    parse_mode=ParseMode.HTML,
-                    )
-                )
-            except Exception as e:
-                print(f"Invalid token. Please try again. Error: {e}")
+            if not self._validate_token(token):
+                print(f"Invalid token. Please try again.")
                 continue
 
             break
@@ -39,25 +32,33 @@ class BotManager:
     def load(self) -> tuple[Bot, Dispatcher]:
         """Bot loading."""
 
-        token: str | None = db.get('tensai.bot.token', None)
+        token: str | None = db.get('tensai.bot.token', "")
 
-        if not token:
-            if not db.get("tensai.settings.web.use_web"):
-                token: str = self._install_bot()
-            else:
-                token: str = asyncio.run(web.start_webinstaller())
-
+        if not token or not self._validate_token(token):
+            token = self._get_token_via_installer()
             db.set('tensai.bot.token', token)
-            token: str = db.get('tensai.bot.token')
 
         self.bot: Bot = Bot(
             token=token,
-            default=DefaultBotProperties(
-                parse_mode=ParseMode.HTML,
-            )
+            default=DefaultBotProperties(parse_mode=ParseMode.HTML)
         )
         self.dp: Dispatcher = Dispatcher()
 
         print("Bot loaded successfully.")
 
         return self.bot, self.dp
+    
+    def _validate_token(self, token: str) -> bool:
+        try:
+            Bot(
+                token=token,
+                default=DefaultBotProperties(parse_mode=ParseMode.HTML)
+            )
+            return True
+        except Exception:
+            return False
+        
+    def _get_token_via_installer(self) -> str:
+        if not db.get("tensai.settings.web.use_web"):
+            return self._install_bot()
+        return asyncio.run(web.start_webinstaller())
