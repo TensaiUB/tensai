@@ -10,6 +10,8 @@ async def install_user() -> None:
     print("Installing Tensai user...")
     me = await bot.get_me()
 
+    db.set("tensai.bot.username", me.username)
+
     if not db.get("tensai.user"):
         print("[sky_blue1]Waiting for bot connection to Telegram Business...[/sky_blue1]")
         print(f"[sky_blue1]Open Settings → Telegram Business → ChatBots → Add Bot @{me.username}[/sky_blue1]")

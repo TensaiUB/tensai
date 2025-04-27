@@ -45,6 +45,7 @@ class Loader:
         self.cmd_handlers = []
         self.botcmd_handlers = []
         self.inline_handlers = []
+        self.inlinecmd_handlers = []
         self.botmsg_handlers = []
         self.cbq_handlers = []
         self.bismsg_handlers = []
@@ -102,6 +103,16 @@ class Loader:
         async def handle_botmsg(message: Message):
             for handler in self.botmsg_handlers:
                 await handler(message)
+
+        @self.router.inline_query(F.query)
+        async def handle_inlinecmd_query(query: InlineQuery):
+            for handler in self.inlinecmd_handlers:
+
+                name = handler.__name__.replace("_inlinecmd_", "")
+                if (
+                    query.query.startswith(name)
+                ):
+                    await handler(query)
 
         @self.router.inline_query()
         async def handle_inline_query(query: InlineQuery):
@@ -176,25 +187,28 @@ class Loader:
                     handler_type = "command"
                 if attr_name.startswith("_botcmd_"):
                     self.botcmd_handlers.append(handler)
-                    handler_type = "bot command"
+                    handler_type = "bot_command"
+                elif attr_name.startswith("_inlinecmd_"):
+                    self.inlinecmd_handlers.append(handler)
+                    handler_type = "inline_command"
                 elif attr_name.startswith("_inline_"):
                     self.inline_handlers.append(handler)
                     handler_type = "inline"
                 elif attr_name.startswith("_botmsg_"):
                     self.botmsg_handlers.append(handler)
-                    handler_type = "bot message"
+                    handler_type = "bot_message"
                 elif attr_name.startswith("_cbq_"):
                     self.cbq_handlers.append(handler)
-                    handler_type = "callback query"
+                    handler_type = "callback_query"
                 elif attr_name.startswith("_bismsg_"):
                     self.bismsg_handlers.append(handler)
-                    handler_type = "business message"
+                    handler_type = "business_message"
                 elif attr_name.startswith("_bisedit_"):
                     self.bisedit_handlers.append(handler)
-                    handler_type = "edited business message"
+                    handler_type = "edited_business_message"
                 elif attr_name.startswith("_bisdel_"):
                     self.bisdel_handlers.append(handler)
-                    handler_type = "deleted business message"
+                    handler_type = "deleted_business_message"
 
                 name = attr_name.replace(f"_{handler_type}_", "")
                 doc = inspect.getdoc(handler) or ""
