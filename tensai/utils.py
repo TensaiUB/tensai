@@ -112,6 +112,8 @@ def get_platform() -> dict:
     }
 
 def country_code_to_emoji(country_code):
+    country_code = country_code.lower().replace("en", "gb")
+
     OFFSET = 127397
     if not country_code or len(country_code) != 2 or not country_code.isalpha():
         return False

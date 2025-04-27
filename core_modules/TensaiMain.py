@@ -44,7 +44,9 @@ class TensaiMain(Module):
 
             "bot_update_notification": """<b>🔄 Вышло обновление! <a href="{local_commit_link}">{local_commit}</a> → <a href="{remote_commit_link}">{remote_commit}</a>
             
-🌳 Ветка: <code>{branch}</code></b>"""
+🌳 Ветка: <code>{branch}</code></b>""",
+
+            "choose_language": "<b><tg-emoji emoji-id=5785209342986817408>🌎</tg-emoji> Выберите свой язык:</b>",
         },
         "en": {
             "tensai-info": """<b>💠 Tensai - fast and safe userbot.</b>
@@ -73,8 +75,9 @@ class TensaiMain(Module):
 
             "bot_update_notification": """<b>🔄 New update! <a href="{local_commit_link}">{local_commit}</a> → <a href="{remote_commit_link}">{remote_commit}</a>
             
-🌳 Branch: <code>{branch}</code></b>"""
+🌳 Branch: <code>{branch}</code></b>""",
 
+            "choose_language": "<b><tg-emoji emoji-id=5785209342986817408>🌎</tg-emoji> Choose your language:</b>",
         },
     }
 
@@ -157,7 +160,20 @@ class TensaiMain(Module):
         """
         lang = utils.get_args(message).lower()
         if not lang:
-            return await utils.answer(message, self.strings("no_lang"))
+            keyboard = InlineKeyboardBuilder()
+
+            for i in range(0, len(SUPPORTED_LANGS), 3):
+                row = [
+                    types.InlineKeyboardButton(text=f"{utils.country_code_to_emoji(lang)} {lang.upper()}", callback_data=f"tensai_settings:setlang:{lang}")
+                    for lang in SUPPORTED_LANGS[i:i+3]
+                ]
+                keyboard.row(*row)
+
+            return await utils.answer(
+                message=message,
+                text=self.strings("choose_language"),
+                reply_markup=keyboard.as_markup()
+            )
         
         flag = utils.country_code_to_emoji(lang)
         if not flag:
@@ -171,6 +187,30 @@ class TensaiMain(Module):
             lang=lang.upper(),
             unofficial=self.strings("no_support_lang") if lang not in SUPPORTED_LANGS else ""
         ))
+
+    async def _cbq_setlang(self, callback: types.CallbackQuery):
+        """
+         - set lang by buttons
+        """
+        if not callback.data.startswith("tensai_settings:setlang:"):
+            return
+        if callback.from_user.id != db.get("tensai.user.telegram_id", 0):
+            return
+        
+        lang = callback.data.split(":")[2]
+        
+        db.set("tensai.settings.lang", lang)
+
+        flag = utils.country_code_to_emoji(lang)
+        flag = self.emoji_flags.get(flag, flag)
+
+        return await callback.message.edit_text(
+            text=self.strings("lang").format(
+                flag=flag,
+                lang=lang.upper(),
+                unofficial=self.strings("no_support_lang") if lang not in SUPPORTED_LANGS else ""
+            )
+        )
 
     async def _cmd_setprefix(self, message: types.Message) -> None:
         """
@@ -237,7 +277,7 @@ class TensaiMain(Module):
         origin = repo.remotes.origin
         origin.pull()
 
-        await utils.answer(message, self.strings("restarting"))
+        await callback.message.edit_text(self.strings("restarting"))
         db.set("tensai.restart.message", {
             "message_id": message.message_id,
             "chat_id": message.chat.id,
