@@ -14,8 +14,6 @@ async def run_bot() -> None:
 
     print("Starting the bot...")
 
-    user_data: str | None = db.get('tensai.user', None)
-    if not user_data:
-        await install.install_user()
+    await install.install_user()
 
     await start_polling()
