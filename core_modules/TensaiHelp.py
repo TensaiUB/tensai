@@ -16,15 +16,23 @@ class TensaiHelp(Module):
             "help_header": "<tg-emoji emoji-id=5883973610606956186>🗂</tg-emoji> <b>Доступные модули и команды:</b>\n\n",
             "no_doc": "Нет описания",
             "module_not_found": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> Модуль не найден.</b>",
+            "not_mentioned": "Не указан",
 
-            "module-info": """<b><tg-emoji emoji-id=5785058280397082578>📁</tg-emoji> Модуль</b> {}\n<i><tg-emoji emoji-id=5879785854284599288>ℹ️</tg-emoji> {}</i>"""
+            "module-info": """<b><tg-emoji emoji-id=5785058280397082578>📁</tg-emoji> Модуль</b> {}
+<i><tg-emoji emoji-id=5879785854284599288>ℹ️</tg-emoji> {}</i>
+
+<b><tg-emoji emoji-id=5190458330719461749>🧑‍💻</tg-emoji>Developer:</b> <code>{}</code>"""
         },
         "en": {
             "help_header": "<tg-emoji emoji-id=5883973610606956186>🗂</tg-emoji> <b>Available modules and commands:</b>\n\n",
             "no_doc": "No description",
             "module_not_found": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> Module not found.</b>",
+            "not_mentioned": "Not mentioned",
 
-            "module-info": """<b><tg-emoji emoji-id=5785058280397082578>📁</tg-emoji> Module</b> {}\n<i><tg-emoji emoji-id=5879785854284599288>ℹ️</tg-emoji> {}</i>"""
+            "module-info": """<b><tg-emoji emoji-id=5785058280397082578>📁</tg-emoji> Module</b> {}
+<i><tg-emoji emoji-id=5879785854284599288>ℹ️</tg-emoji> {}</i>
+
+<b><tg-emoji emoji-id=5190458330719461749>🧑‍💻</tg-emoji>Developer:</b> <code>{}</code>"""
         },
     }
 
@@ -58,7 +66,7 @@ class TensaiHelp(Module):
                 desc = info.get("description") or self.strings("no_doc")
                 text += f" {char} <code>{self.get_prefix()}{cmd}</code> <i>{escape_html(desc)}</i>\n"
             
-            text = self.strings("module-info").format(text, module_data.get("description", self.strings("no_doc")))
+            text = self.strings("module-info").format(text, module_data.get("description", self.strings("no_doc")), module_data.get("author", self.strings("not_mentioned")))
         else:
             text = self.strings("help_header")
 
