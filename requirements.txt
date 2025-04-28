@@ -10,3 +10,4 @@ setuptools
 fastapi
 uvicorn
 python-multipart
+psutil
