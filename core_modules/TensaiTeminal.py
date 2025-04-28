@@ -14,28 +14,30 @@ def hash_msg(message):
 class Tensaiteminal(Module):
     strings: dict[str, dict[str, str]] = {
         "ru": {
-            "running": "<b>⌨️ Системная команда:</b>\n<pre><code class='language-bash'>{command}</code></pre>",
+            "running": "<b><tg-emoji emoji-id=5472111548572900003>⌨️</tg-emoji> Системная команда:</b>\n<pre><code class='language-bash'>{command}</code></pre>",
             "status_running": "\n\n<b>Запуск...</b>",
-            "finished": "\n\n<b>✔️ Код выхода:</b> <code>{exit_code}</code>",
+            "finished": "\n<b>Код выхода:</b> <code>{exit_code}</code>",
             "stdout": "\n\n<b>📼 Stdout:</b>\n<pre><code class='language-bash'>{stdout}</code></pre>",
-            "stderr": "\n\n<b>🚫 Stderr:</b>\n<pre><code class='language-bash'>{stderr}</code></pre>",
-            "done": "<b>✅ Команда выполнена успешно.</b>",
-            "what_to_kill": "<b>❌ Ответьте на сообщение с командой, которую хотите завершить.</b>",
-            "kill_fail": "<b>❌ Не удалось завершить процесс.</b>",
-            "killed": "<b>✅ Процесс завершен.</b>",
-            "no_cmd": "<b>❌ Указанная команда не активна.</b>",
+            "stderr": "\n\n<b><tg-emoji emoji-id=6030331836763213973>🚫</tg-emoji> Stderr:</b>\n<pre><code class='language-bash'>{stderr}</code></pre>",
+            "no_cmd": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> Укажите команду для выполнения.</b>",
+            "done": "<b><tg-emoji emoji-id=6028565819225542441>✅</tg-emoji> Команда выполнена успешно.</b>",
+            "what_to_kill": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> Ответьте на сообщение с командой, которую хотите завершить.</b>",
+            "kill_fail": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> Не удалось завершить процесс.</b>",
+            "killed": "<b><tg-emoji emoji-id=6028565819225542441>✅</tg-emoji> Процесс завершен.</b>",
+            "no_cmd": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> Указанная команда не активна.</b>",
         },
         "en": {
-            "running": "<b>⌨️ System Command:</b>\n<pre><code class='language-bash'>{command}</code></pre>",
+            "running": "<b><tg-emoji emoji-id=5472111548572900003>⌨️</tg-emoji> System command:</b>\n<pre><code class='language-bash'>{command}</code></pre>",
             "status_running": "\n\n<b>Running...</b>",
-            "finished": "\n\n<b>✔️ Exit Code:</b> <code>{exit_code}</code>",
-            "stdout": "\n\n<b>📼 Stdout:</b>\n<pre><code class='language-bash'>{stdout}</code></pre>",
-            "stderr": "\n\n<b>🚫 Stderr:</b>\n<pre><code class='language-bash'>{stderr}</code></pre>",
-            "done": "<b>✅ Command finished successfully.</b>",
-            "what_to_kill": "<b>❌ Reply to the command message you want to terminate.</b>",
-            "kill_fail": "<b>❌ Failed to terminate the process.</b>",
-            "killed": "<b>✅ Process terminated.</b>",
-            "no_cmd": "<b>❌ No active command found.</b>",
+            "finished": "\n<b>Exit code:</b> <code>{exit_code}</code>",
+            "stdout": "\n\n<b>📼 Stdout:</b>\n<pre><code class='stdout'>{stdout}</code></pre>",
+            "stderr": "\n\n<b><tg-emoji emoji-id=6030331836763213973>🚫</tg-emoji> Stderr:</b>\n<pre><code class='stderr'>{stderr}</code></pre>",
+            "no_cmd": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> Provide a command to execute.</b>",
+            "done": "<b><tg-emoji emoji-id=6028565819225542441>✅</tg-emoji> Command finished successfully.</b>",
+            "what_to_kill": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> Reply to the command message you want to terminate.</b>",
+            "kill_fail": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> Failed to terminate the process.</b>",
+            "killed": "<b><tg-emoji emoji-id=6028565819225542441>✅</tg-emoji> Process terminated.</b>",
+            "no_cmd": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> No active command found.</b>",
         },
     }
 
@@ -50,7 +52,7 @@ class Tensaiteminal(Module):
         command = utils.get_args(message)
         if not command:
             return await utils.answer(
-                message, "<b>❌ Укажите команду для выполнения.</b>"
+                message, self.strings("no_cmd")
             )
         await self.run_command(message, command)
 
