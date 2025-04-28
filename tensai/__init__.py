@@ -1,18 +1,5 @@
 import subprocess
 import pkg_resources
-from rich import print
-from fakeredis import aioredis as fake_aioredis
-from redis.asyncio import Redis
-from redis.exceptions import ConnectionError, RedisError
-
-from tensai import db, utils
-from tensai.bot_core import BotManager
-
-import os
-import sys
-import time
-import asyncio
-import argparse
 
 print("Checking packages...")
 
@@ -36,6 +23,20 @@ for req in required:
 if missing_or_outdated:
     print(f"Installing missing packages: {', '.join(req for req in missing_or_outdated)}")
     subprocess.check_call([sys.executable, '-m', 'pip', 'install', *missing_or_outdated])
+
+from rich import print
+from fakeredis import aioredis as fake_aioredis
+from redis.asyncio import Redis
+from redis.exceptions import ConnectionError, RedisError
+
+from tensai import db, utils
+from tensai.bot_core import BotManager
+
+import os
+import sys
+import time
+import asyncio
+import argparse
 
 git_info = asyncio.run(utils.get_git_info())
 
