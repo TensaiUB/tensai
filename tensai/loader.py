@@ -11,7 +11,10 @@ import sys
 import inspect
 import asyncio
 import subprocess
+import logging
 import importlib.util
+
+logger = logging.getLogger(__name__)
 
 class Strings:
     def __init__(self, strings: dict) -> None:
@@ -78,7 +81,7 @@ class Loader:
                 await handler(message)
 
         @self.router.message(F.text.startswith("/"))
-        async def handle_business_message(message: Message):
+        async def handle_bot_message(message: Message):
             for handler in self.botcmd_handlers:
                 if not getattr(message, "text", ""):
                     continue
@@ -142,6 +145,7 @@ class Loader:
             requires = self._parse_metadata(module_path, ["requires"]).get("requires")
             if requires:
                 print("Installing module's requirements...")
+                logger.info(f"Installing {module_path}'s requirements: {requires}")
                 subprocess.check_call([sys.executable, "-m", "pip", "install", *requires.split(", ")])
 
             spec: ModuleSpec = importlib.util.spec_from_file_location(
@@ -160,6 +164,7 @@ class Loader:
                 None,
             )
             if not module_class:
+                logger.error(f"Module class not found in {module_name}")
                 print(f"Module class not found in {module_name}")
                 return
 
@@ -236,9 +241,11 @@ class Loader:
             }
 
             print(f"Module {module_name} loaded and handlers registered!")
+            logger.info(f"Module {module_name} loaded and handlers registered")
 
         except Exception as e:
             print(f"Error loading module {module_path.stem}: {e}")
+            logger.error(f"Error loading module {module_path.stem}: {e}")
 
     def _load_modules(self):
         # Loads all modules from core_modules and modules dirs
@@ -246,8 +253,10 @@ class Loader:
             for file in path.glob("*.py"):
                 if not file.name.startswith("_"):
                     self.load_module(file, core=(path == self.core_modules_dir))
+            logger.info(f"Loaded modules from {path}")
 
     def unload_module(self, module_name: str):
         # Deletes module from memory and file system
         os.remove(self.modules_dir / f"{module_name}.py")
         self.modules.pop(module_name, None)
+        logger.info(f"Module {module_name} unloaded")

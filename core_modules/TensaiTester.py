@@ -40,3 +40,10 @@ class TensaiTester(Module):
         uptime = time.strftime("%H:%M:%S", time.gmtime(uptime))
 
         await utils.answer(message, self.strings('uptime').format(uptime=uptime))
+
+    async def _cmd_logs(self, message: types.Message) -> None:
+        """
+         - get logs
+        """
+        await utils.answer(message, "<b>Logs:</b>")
+        await message.answer_document(types.FSInputFile("tensai.log"))

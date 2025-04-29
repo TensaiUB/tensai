@@ -24,7 +24,6 @@ class Tensaiteminal(Module):
             "what_to_kill": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> Ответьте на сообщение с командой, которую хотите завершить.</b>",
             "kill_fail": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> Не удалось завершить процесс.</b>",
             "killed": "<b><tg-emoji emoji-id=6028565819225542441>✅</tg-emoji> Процесс завершен.</b>",
-            "no_cmd": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> Указанная команда не активна.</b>",
         },
         "en": {
             "running": "<b><tg-emoji emoji-id=5472111548572900003>⌨️</tg-emoji> System command:</b>\n<pre><code class='language-bash'>{command}</code></pre>",
@@ -37,7 +36,6 @@ class Tensaiteminal(Module):
             "what_to_kill": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> Reply to the command message you want to terminate.</b>",
             "kill_fail": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> Failed to terminate the process.</b>",
             "killed": "<b><tg-emoji emoji-id=6028565819225542441>✅</tg-emoji> Process terminated.</b>",
-            "no_cmd": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> No active command found.</b>",
         },
     }
 

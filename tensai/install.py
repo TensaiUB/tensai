@@ -1,8 +1,10 @@
 from tensai import db, dp, bot
 from aiogram import Router, types
 from rich import print
+import logging
 
 router = Router()
+logger = logging.getLogger(__name__)
 
 async def install_user() -> None:
     """Install the user and register connection handler."""
@@ -15,8 +17,10 @@ async def install_user() -> None:
     if not db.get("tensai.user"):
         print("[sky_blue1]Waiting for bot connection to Telegram Business...[/sky_blue1]")
         print(f"[sky_blue1]Open Settings → Telegram Business → ChatBots → Add Bot @{me.username}[/sky_blue1]")
+        logger.info("Waiting for bot connection to Telegram Business...")
     else:
         print("[sky_blue1]Telegram account connected.[/sky_blue1]")
+        logger.info("Telegram account connected.")
 
     router.business_connection()(connect)
     dp.include_router(router)
@@ -39,7 +43,13 @@ async def connect(connection: types.BusinessConnection) -> None:
         else "<b>✅ Rights of the bot have been successfully updated!</b>"
     )
     await bot.send_message(user_id, message)
-    print("[sky_blue1]Telegram account connected.[/sky_blue1]" if not db.get("tensai.user") else "[sky_blue1]Rights successfully updated.[/sky_blue1]")
+    log = (
+        "Telegram account connected."
+        if not db.get("tensai.user")
+        else "Rights successfully updated."
+    )
+    print("[sky_blue1]" + log + "[/sky_blue1]")
+    logger.info(log)
 
     db.set('tensai.user', {
         "telegram_id": user_id,
@@ -50,3 +60,7 @@ async def connect(connection: types.BusinessConnection) -> None:
 
     rights_dict = {key: bool(value) for key, value in dict(connection.rights).items()}
     db.set('tensai.rights', rights_dict)
+
+    logger.info("Rights:")
+    for key, value in rights_dict.items():
+        logger.info(f"{key} = {value}")

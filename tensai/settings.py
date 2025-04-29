@@ -3,6 +3,10 @@ from redis.asyncio import Redis
 from redis.exceptions import ConnectionError, RedisError
 from rich import print
 
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 async def get_redis():
     try:
@@ -11,9 +15,11 @@ async def get_redis():
         )
         await redis_client.ping()
         print("[green]✅ Connected to Redis[/green]")
+        logger.info("Connected to Redis")
         return redis_client
     except (ConnectionError, RedisError, OSError):
         print("[green]✅ Connected to fake Redis[/green]")
+        logger.info("Connected to fake Redis")
         return await fake_aioredis.FakeRedis(decode_responses=True)
 
 

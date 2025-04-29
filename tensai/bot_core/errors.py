@@ -4,6 +4,11 @@ from tensai import dp, db, bot, utils
 
 import html
 import traceback
+import logging
+
+
+logger = logging.getLogger(__name__)
+
 
 @dp.error()
 async def error_handler(event: types.ErrorEvent):
@@ -37,8 +42,9 @@ async def error_handler(event: types.ErrorEvent):
                 update.message.edit_text,
                 text=formatted_traceback
             )
-        except:
+        except Exception:
             pass
         await bot.send_message(
             chat_id=db.get("tensai.user.telegram_id"), text=formatted_traceback
         )
+        logger.error(formatted_traceback)

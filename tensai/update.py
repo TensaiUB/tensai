@@ -2,9 +2,13 @@ import os
 import sys
 import signal
 import atexit
+import logging
 
 from tensai import db
 from rich import print
+
+
+logger = logging.getLogger(__name__)
 
 def get_startup_callback() -> callable:
     """
@@ -29,13 +33,13 @@ def die():
     else:
         os.killpg(os.getpgid(os.getpid()), signal.SIGTERM)
 
-
 def restart():
     if db.get("tensai.restart.do_not_restart", None):
         print("⚠️ Restart aborted due to DO_NOT_RESTART environment variable")
         sys.exit(0)
 
     print("🔄 Restarting...")
+    logger.info("Restarting...")
 
     db.set("tensai.restart.do_not_restart", "42")
 
