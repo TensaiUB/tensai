@@ -4,10 +4,29 @@ from tensai.bot_core import errors
 
 import asyncio
 import logging
+import sys
 
 
 loader: Loader = Loader()
 logger = logging.getLogger(__name__)
+
+tensai = type(
+    "Tensai",
+    (),
+    {
+        "command": loader.command,
+        "bot_command": loader.bot_command,
+        "inline_command": loader.inline_command,
+        "inline": loader.inline,
+        "bot_message": loader.bot_message,
+        "callback_query": loader.callback_query,
+        "business_message": loader.business_message,
+        "edited_business_message": loader.edited_business_message,
+        "deleted_business_message": loader.deleted_business_message,
+    },
+)
+
+sys.modules["tensai.decorators"] = tensai
 
 async def start_polling() -> None:
     await dp.start_polling(bot, skip_updates=False)

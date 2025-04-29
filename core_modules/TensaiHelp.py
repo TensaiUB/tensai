@@ -89,6 +89,7 @@ class TensaiHelp(Module):
 
     def _format_commands(self, commands, bot_commands, inline_commands) -> str:
         lines = []
+        lang = utils.get_lang()
         all_cmds = list(commands.items())
         all_bot_cmds = list(bot_commands.items())
         all_inline_cmds = list(inline_commands.items())
@@ -98,17 +99,23 @@ class TensaiHelp(Module):
         for idx, (cmd, info) in enumerate(all_cmds):
             char = "├" if idx < len(all_cmds) - 1 or all_bot_cmds or all_inline_cmds else "└"
             desc = info.get("description") or self.strings("no_doc")
+            if type(desc) is dict:
+                desc = desc.get(lang, self.strings("no_doc"))
             lines.append(f" {char} <code>{self.get_prefix()}{cmd}</code> <i>{escape_html(desc)}</i>")
 
         for idx, (cmd, info) in enumerate(all_bot_cmds):
             is_last = (idx == len(all_bot_cmds) - 1 and not all_inline_cmds)
             char = "└" if is_last else "├"
             desc = info.get("description") or self.strings("no_doc")
+            if type(desc) is dict:
+                desc = desc.get(lang, self.strings("no_doc"))
             lines.append(f" {char} <tg-emoji emoji-id=5931415565955503486>🤖</tg-emoji> <code>/{cmd}</code> <i>{escape_html(desc)}</i>")
 
         for idx, (cmd, info) in enumerate(all_inline_cmds):
             char = "└" if idx == len(all_inline_cmds) - 1 else "├"
             desc = info.get("description") or self.strings("no_doc")
+            if type(desc) is dict:
+                desc = desc.get(lang, self.strings("no_doc"))
             lines.append(f" {char} <tg-emoji emoji-id=5931415565955503486>🤖</tg-emoji> <code>@{bot_username} {cmd}</code> <i>{escape_html(desc)}</i>")
 
         return "\n".join(lines)

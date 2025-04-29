@@ -5,6 +5,7 @@ from importlib.machinery import ModuleSpec
 from aiogram import Router, F
 from aiogram.types import Message, InlineQuery, CallbackQuery
 from tensai import dp, utils, db
+from tensai.loader.decorators import Decorators
 
 import os
 import sys
@@ -15,6 +16,7 @@ import logging
 import importlib.util
 
 logger = logging.getLogger(__name__)
+
 
 class Strings:
     def __init__(self, strings: dict) -> None:
@@ -39,7 +41,7 @@ class Module:
         pass
 
 
-class Loader:
+class Loader(Decorators):
     def __init__(self) -> None:
         self.core_modules_dir = Path("core_modules")
         self.modules_dir = Path("modules")
@@ -60,73 +62,6 @@ class Loader:
         self._register_base_handlers()
         dp.include_router(self.router)
 
-    def _register_base_handlers(self):
-        # Register main router and handlers
-        @self.router.business_message()
-        async def handle_business_message(message: Message):
-            prefix = utils.get_prefix()
-            user_id = db.get("tensai.user.telegram_id")
-            owners = db.get("tensai.security.owners", [])
-            for handler in self.cmd_handlers:
-                if not getattr(message, "text", ""):
-                    continue
-
-                name = handler.__name__.replace("_cmd_", "")
-                if (
-                    message.text.startswith(f"{prefix}{name}")
-                    and (message.from_user.id == user_id or message.from_user.id in owners)
-                ):
-                    await handler(message)
-            for handler in self.bismsg_handlers:
-                await handler(message)
-
-        @self.router.message(F.text.startswith("/"))
-        async def handle_bot_message(message: Message):
-            for handler in self.botcmd_handlers:
-                if not getattr(message, "text", ""):
-                    continue
-
-                name = handler.__name__.replace("_botcmd_", "")
-                if (
-                    message.text.startswith(f"/{name}")
-                ):
-                    await handler(message)
-
-        @self.router.edited_business_message()
-        async def handle_edited_message(message: Message):
-            for handler in self.bisedit_handlers:
-                await handler(message)
-
-        @self.router.deleted_business_messages()
-        async def handle_deleted_message(message: Message):
-            for handler in self.bisdel_handlers:
-                await handler(message)
-
-        @self.router.message()
-        async def handle_botmsg(message: Message):
-            for handler in self.botmsg_handlers:
-                await handler(message)
-
-        @self.router.inline_query(F.query)
-        async def handle_inlinecmd_query(query: InlineQuery):
-            for handler in self.inlinecmd_handlers:
-
-                name = handler.__name__.replace("_inlinecmd_", "")
-                if (
-                    query.query.startswith(name)
-                ):
-                    await handler(query)
-
-        @self.router.inline_query()
-        async def handle_inline_query(query: InlineQuery):
-            for handler in self.inline_handlers:
-                await handler(query)
-
-        @self.router.callback_query()
-        async def handle_callback_query(query: CallbackQuery):
-            for handler in self.cbq_handlers:
-                await handler(query)
-
     def _parse_metadata(self, module_path: Path, keys: list[str]) -> dict:
         meta = {}
         with open(module_path, encoding="utf-8") as file:
@@ -146,7 +81,9 @@ class Loader:
             if requires:
                 print("Installing module's requirements...")
                 logger.info(f"Installing {module_path}'s requirements: {requires}")
-                subprocess.check_call([sys.executable, "-m", "pip", "install", *requires.split(", ")])
+                subprocess.check_call(
+                    [sys.executable, "-m", "pip", "install", *requires.split(", ")]
+                )
 
             spec: ModuleSpec = importlib.util.spec_from_file_location(
                 f"{'core_' if core else ''}modules.{module_path.stem}", module_path
@@ -176,7 +113,8 @@ class Loader:
                 if not callable(handler):
                     continue
 
-                handler_type = ""
+                # Проверяем наличие метаданных от декоратора
+                handler_meta = getattr(handler, "_handler_meta", None)
 
                 if attr_name == "on_load":
                     if asyncio.iscoroutinefunction(handler):
@@ -187,48 +125,87 @@ class Loader:
                             asyncio.run(handler())
                     else:
                         handler()
-                if attr_name.startswith("_cmd_"):
-                    self.cmd_handlers.append(handler)
-                    handler_type = "command"
-                if attr_name.startswith("_botcmd_"):
-                    self.botcmd_handlers.append(handler)
-                    handler_type = "bot_command"
-                elif attr_name.startswith("_inlinecmd_"):
-                    self.inlinecmd_handlers.append(handler)
-                    handler_type = "inline_command"
-                elif attr_name.startswith("_inline_"):
-                    self.inline_handlers.append(handler)
-                    handler_type = "inline"
-                elif attr_name.startswith("_botmsg_"):
-                    self.botmsg_handlers.append(handler)
-                    handler_type = "bot_message"
-                elif attr_name.startswith("_cbq_"):
-                    self.cbq_handlers.append(handler)
-                    handler_type = "callback_query"
-                elif attr_name.startswith("_bismsg_"):
-                    self.bismsg_handlers.append(handler)
-                    handler_type = "business_message"
-                elif attr_name.startswith("_bisedit_"):
-                    self.bisedit_handlers.append(handler)
-                    handler_type = "edited_business_message"
-                elif attr_name.startswith("_bisdel_"):
-                    self.bisdel_handlers.append(handler)
-                    handler_type = "deleted_business_message"
+                    continue
 
-                name = attr_name.replace(f"_{handler_type}_", "")
-                doc = inspect.getdoc(handler) or ""
+                if handler_meta:
+                    # Обработка декорированных функций
+                    handler_type = handler_meta["type"]
+                    if handler_type == "command":
+                        self.cmd_handlers.append(handler)
+                    elif handler_type == "bot_command":
+                        self.botcmd_handlers.append(handler)
+                    elif handler_type == "inline_command":
+                        self.inlinecmd_handlers.append(handler)
+                    elif handler_type == "inline":
+                        self.inline_handlers.append(handler)
+                    elif handler_type == "bot_message":
+                        self.botmsg_handlers.append(handler)
+                    elif handler_type == "callback_query":
+                        self.cbq_handlers.append(handler)
+                    elif handler_type == "business_message":
+                        self.bismsg_handlers.append(handler)
+                    elif handler_type == "edited_business_message":
+                        self.bisedit_handlers.append(handler)
+                    elif handler_type == "deleted_business_message":
+                        self.bisdel_handlers.append(handler)
 
-                if handler_type:
-                    name = attr_name.split("_", 2)[-1]
-                    doc = inspect.getdoc(handler) or ""
-
+                    # Добавляем информацию о хендлере в module_handlers
                     if handler_type not in module_handlers:
                         module_handlers[handler_type] = {}
+
+                    name = attr_name.split("_", 2)[-1] if "_" in attr_name else attr_name
+                    doc = handler_meta.get("description") or inspect.getdoc(handler) or ""
 
                     module_handlers[handler_type][name] = {
                         "handler": handler,
                         "description": doc,
+                        "aliases": handler_meta.get("aliases", []),
                     }
+                else:
+                    # Старая логика для совместимости
+                    handler_type = ""
+                    if attr_name.startswith("_cmd_"):
+                        self.cmd_handlers.append(handler)
+                        handler_type = "command"
+                    elif attr_name.startswith("_botcmd_"):
+                        self.botcmd_handlers.append(handler)
+                        handler_type = "bot_command"
+                    elif attr_name.startswith("_inlinecmd_"):
+                        self.inlinecmd_handlers.append(handler)
+                        handler_type = "inline_command"
+                    elif attr_name.startswith("_inline_"):
+                        self.inline_handlers.append(handler)
+                        handler_type = "inline"
+                    elif attr_name.startswith("_botmsg_"):
+                        self.botmsg_handlers.append(handler)
+                        handler_type = "bot_message"
+                    elif attr_name.startswith("_cbq_"):
+                        self.cbq_handlers.append(handler)
+                        handler_type = "callback_query"
+                    elif attr_name.startswith("_bismsg_"):
+                        self.bismsg_handlers.append(handler)
+                        handler_type = "business_message"
+                    elif attr_name.startswith("_bisedit_"):
+                        self.bisedit_handlers.append(handler)
+                        handler_type = "edited_business_message"
+                    elif attr_name.startswith("_bisdel_"):
+                        self.bisdel_handlers.append(handler)
+                        handler_type = "deleted_business_message"
+
+                    if handler_type:
+                        name = (
+                            attr_name.split("_", 2)[-1] if "_" in attr_name else attr_name
+                        )
+                        doc = inspect.getdoc(handler) or ""
+
+                        if handler_type not in module_handlers:
+                            module_handlers[handler_type] = {}
+
+                        module_handlers[handler_type][name] = {
+                            "handler": handler,
+                            "description": doc,
+                            "aliases": [],
+                        }
 
             self.modules[module_name] = {
                 "name": module_name,
