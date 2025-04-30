@@ -64,3 +64,4 @@ class TensaiTester(Module):
             types.FSInputFile("tensai.log"),
             caption=self.strings("logs")
         )
+        await utils.delete_message(message)

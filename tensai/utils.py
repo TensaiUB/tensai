@@ -164,3 +164,12 @@ async def answer_media(
         media=media,
         reply_markup=reply_markup
     )
+
+async def delete_message(
+    message: types.Message,
+) -> bool:
+    try:
+        await message.delete()
+    except:
+        return False
+    return True
