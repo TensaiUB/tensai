@@ -14,15 +14,24 @@ class TensaiTester(Module):
         "ru": {
             "ping": "<b><tg-emoji emoji-id=5931472654660800739>🏓</tg-emoji> Понг! Пинг <code>{ms}</code> ms.</b>",
             "uptime": "<b><tg-emoji emoji-id=5431449001532594346>⚡️</tg-emoji> Текущий аптайм: <code>{uptime}</code></b>",
+
+            "logs": "<b><tg-emoji emoji-id=5433653135799228968>📁</tg-emoji> Логи Tensai</b>",
+            "sending_logs": "<i>Отправка логов...</i>"
         },
         "en": {
             "ping": "<b><tg-emoji emoji-id=5931472654660800739>🏓</tg-emoji> Pong! Ping <code>{ms}</code> ms.</b>",
             "uptime": "<b><tg-emoji emoji-id=5431449001532594346>⚡️</tg-emoji> Current uptime: <code>{uptime}</code></b>",
+
+            "logs": "<b><tg-emoji emoji-id=5433653135799228968>📁</tg-emoji> Logs of Tensai</b>",
+            "sending_logs": "<i>Sending logs...</i>"
         },
     }
 
     @command(
-        aliases=["ping", "p"], description={"ru": " - получить пинг", "en": " - get ping"}
+        aliases=["ping", "p"], description={
+            "ru": " - получить пинг", 
+            "en": " - get ping"
+        }
     )
     async def _cmd_ping(self, message: types.Message) -> None:
         start = time.monotonic()
@@ -50,5 +59,8 @@ class TensaiTester(Module):
         """
          - get logs
         """
-        await utils.answer(message, "<b>Logs:</b>")
-        await message.answer_document(types.FSInputFile("tensai.log"))
+        message = await utils.answer(message, self.strings("sending_logs"))
+        await message.answer_document(
+            types.FSInputFile("tensai.log"),
+            caption=self.strings("logs")
+        )
