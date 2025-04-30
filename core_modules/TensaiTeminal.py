@@ -60,6 +60,11 @@ class Tensaiteminal(Module):
         cmd = f"apt {command} -y" if os.geteuid() == 0 else f"sudo -S apt {command} -y"
         await self.run_command(message, cmd)
 
+    async def _cmd_pip(self, message: types.Message):
+        """<command> - execute pip command"""
+        command = utils.get_args(message)
+        await self.run_command(message, f"pip {command}")
+
     async def _cmd_terminate(self, message: types.Message):
         """<command> - terminate running command"""
         if not message.reply_to_message:
