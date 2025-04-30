@@ -109,8 +109,14 @@ class Decorators:
                     names = [handler.__name__.replace("_cmd_", "")]
 
                 if (
-                    any(message.text.startswith(f"{prefix}{name}") for name in names)
-                    or any(message.text.startswith(f"{prefix} {name}") for name in names)
+                    any(
+                        message.text == f"{prefix}{name}" or message.text.startswith(f"{prefix}{name} ")
+                        for name in names
+                    )
+                or any(
+                    message.text == f"{prefix} {name}" or message.text.startswith(f"{prefix} {name} ")
+                    for name in names
+                )
                 ) and (
                     message.from_user.id == user_id or message.from_user.id in owners
                 ):
