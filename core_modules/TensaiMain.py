@@ -277,7 +277,7 @@ class TensaiMain(Module):
         origin = repo.remotes.origin
         origin.pull()
 
-        await callback.message.edit_text(self.strings("restarting"))
+        message = await message.edit_text(self.strings("restarting"))
         db.set("tensai.restart.message", {
             "message_id": message.message_id,
             "chat_id": message.chat.id,
