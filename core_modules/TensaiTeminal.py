@@ -62,7 +62,7 @@ class Tensaiteminal(Module):
 
     async def _cmd_terminate(self, message: types.Message):
         """<command> - terminate running command"""
-        if not message.is_reply:
+        if not message.reply_to_message:
             return await utils.answer(message, self.strings("what_to_kill"))
 
         reply_msg = await message.get_reply_message()
