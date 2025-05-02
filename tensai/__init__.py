@@ -34,11 +34,13 @@ Commit: #{git_info['last_commit_short']}
 Github: https://github.com/TensaiUB/tensai[/sky_blue1]
 """
 )
+
+web, port = get_web_settings(db, sys.argv)
+
 manager = BotManager()
 bot, dp = manager.load()
 start_time = time.time()
 
 redis = asyncio.run(get_redis())
-web, port = get_web_settings(db, sys.argv)
 
 logger.info(f"Starting bot {'0.0.0.0:{port}' if web else 'without web'}")
