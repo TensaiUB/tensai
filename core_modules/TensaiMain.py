@@ -47,6 +47,8 @@ class TensaiMain(Module):
 🌳 Ветка: <code>{branch}</code></b>""",
 
             "choose_language": "<b><tg-emoji emoji-id=5785209342986817408>🌎</tg-emoji> Выберите свой язык:</b>",
+
+            "source-code": "<tg-emoji emoji-id=5346181118884331907>🐈‍⬛</tg-emoji> <b>Tensai полностью открыт. Исходный код можно найти на Github.</b>"
         },
         "en": {
             "tensai-info": """<b>💠 Tensai - fast and safe userbot.</b>
@@ -78,6 +80,8 @@ class TensaiMain(Module):
 🌳 Branch: <code>{branch}</code></b>""",
 
             "choose_language": "<b><tg-emoji emoji-id=5785209342986817408>🌎</tg-emoji> Choose your language:</b>",
+
+            "source-code": "<tg-emoji emoji-id=5346181118884331907>🐈‍⬛</tg-emoji> <b>Tensai is full open-souce. You can find it on Github.</b>"
         },
     }
 
@@ -130,6 +134,47 @@ class TensaiMain(Module):
                 media="https://i.gifer.com/A54z.gif",
                 caption=self.strings("tensai-info"),
             ),
+            reply_markup=keyboard.as_markup()
+        )
+
+    async def _cmd_source(self, message: types.Message) -> None:
+        """
+         - get source code
+        """
+        keyboard = InlineKeyboardBuilder()
+
+        keyboard.row(
+            types.InlineKeyboardButton(
+                text="Dev #1",
+                url="https://t.me/fajox",
+            ),
+            types.InlineKeyboardButton(
+                text="Dev #2",
+                url="https://t.me/vsecoder",
+            )
+        )
+
+        keyboard.row(
+            types.InlineKeyboardButton(
+                text="Github",
+                url="https://github.com/TensaiUB/tensai",
+            )
+        )
+
+        keyboard.row(
+            types.InlineKeyboardButton(
+                text="Channel",
+                url="https://t.me/tensai_ub",
+            ),
+            types.InlineKeyboardButton(
+                text="Chat",
+                url="https://t.me/tensai_chat",
+            )
+        )
+
+        await utils.answer(
+            message=message,
+            text=self.strings("source-code"),
             reply_markup=keyboard.as_markup()
         )
 
