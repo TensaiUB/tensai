@@ -30,7 +30,7 @@ class TensaiTranslator(Module):
             "no_support_lang": "<i><tg-emoji emoji-id=5355133243773435190>⚠️</tg-emoji> This language is not officially supported.</i>",
             "inccorrect_language": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> Incorrect language.</b>",
             "no_lang": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> No language selected.</b>",
-            "lang": "<b>{flag} Язык установлен: {lang}</b>\n\n{unofficial}",
+            "lang": "<b>{flag} Language set: {lang}</b>\n\n{unofficial}",
             "choose_language": "<b><tg-emoji emoji-id=5785209342986817408>🌎</tg-emoji> Choose your language:</b>",
 
             "no_args_translate": "<b><tg-emoji emoji-id=6030331836763213973>❌</tg-emoji> Use <code>{}tr [to_lang] [text]</code></b>"
