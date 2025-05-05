@@ -5,6 +5,7 @@ from aiogram import types
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from tensai.loader import Module
+from tensai.decorators import callback_query
 from tensai import bot, db, utils
 from tensai.update import restart
 
@@ -222,13 +223,14 @@ class TensaiMain(Module):
             reply_markup=keyboard.as_markup()
         )
 
-    async def _cbq_tensai_update(self, callback: types.CallbackQuery) -> None:
-        """
-         - update tensai
-        """
-
-        if callback.data != "tensai_update":
-            return
+    @callback_query(
+        data="tensai_update",
+        description={
+            "en": "- update tensai",
+            "ru": "- обновить tensai"
+        }
+    )
+    async def button_update(self, callback: types.CallbackQuery) -> None:
         
         await callback.message.delete()
         message = await callback.message.answer(self.strings("updating"))
