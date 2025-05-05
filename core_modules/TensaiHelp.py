@@ -2,6 +2,7 @@
 # author: @vsecoder, @fajox
 
 from aiogram import types
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from tensai.loader import Module
 from tensai.main import loader
@@ -21,7 +22,12 @@ class TensaiHelp(Module):
             "module-info": """<b><tg-emoji emoji-id=5785058280397082578>📁</tg-emoji> Модуль</b> {}
 <i><tg-emoji emoji-id=5879785854284599288>ℹ️</tg-emoji> {}</i>
 
-<b><tg-emoji emoji-id=5190458330719461749>🧑‍💻</tg-emoji>Developer:</b> <code>{}</code>"""
+<b><tg-emoji emoji-id=5190458330719461749>🧑‍💻</tg-emoji>Разработчик:</b> <code>{}</code>""",
+
+            "inline_cmds_message": "<b>ℹ️ Список инлайн команд:</b>\n\n{commands}",
+
+            "inline_cmds": "Список инлайн команд",
+            "inline_cmds_description": "Нажми что бы посмотреть",
         },
         "en": {
             "help_header": "<tg-emoji emoji-id=5883973610606956186>🗂</tg-emoji> <b>Available modules and commands:</b>\n",
@@ -33,7 +39,16 @@ class TensaiHelp(Module):
 
 <i><tg-emoji emoji-id=5879785854284599288>ℹ️</tg-emoji> {}</i>
 
-<b><tg-emoji emoji-id=5190458330719461749>🧑‍💻</tg-emoji>Developer:</b> <code>{}</code>"""
+<b><tg-emoji emoji-id=5190458330719461749>🧑‍💻</tg-emoji>Developer:</b> <code>{}</code>""",
+
+            "inline_cmds_message": "<b>ℹ️ List of inline commands:</b>\n\n{commands}",
+
+            "inline_cmds": "List of inline commands",
+            "inline_cmds_description": "Press to view",
+
+            "execute_command": "Execute",
+            "inline_execute": "Execute command «{cmd}»",
+            "inline_execute_message": "<b>💻 Execute command «<code>{cmd}</code>»</b>\n\nℹ️ <i>{description}</i>",
         },
     }
 
@@ -119,3 +134,61 @@ class TensaiHelp(Module):
             lines.append(f" {char} <tg-emoji emoji-id=5931415565955503486>🤖</tg-emoji> <code>@{bot_username} {cmd}</code> <i>{escape_html(desc)}</i>")
 
         return "\n".join(lines)
+    
+    async def _inlinecmd_test(self, query):
+        """
+        test
+        """
+
+    async def _inline_cmds(self, inline_query: types.InlineQuery):
+        bot_username = db.get("tensai.bot.username", "bot")
+
+        all_inline_cmds = []
+        for module_name, module_data in loader.modules.items():
+            handlers = module_data.get("handlers", {})
+            inline_commands = handlers.get("inline_command", {})
+            all_inline_cmds.extend(list(inline_commands.items()))
+
+        commands_text = "\n".join(
+            f"🤖 <code>@{bot_username} {cmd}</code> {data['description'] or self.strings('no_doc')}" for cmd, data in all_inline_cmds
+        )
+
+        results = [types.inline_query_result_article.InlineQueryResultArticle(
+            id="1",
+            title=self.strings("inline_cmds"),
+            description=self.strings("inline_cmds_description"),
+            input_message_content=types.input_text_message_content.InputTextMessageContent(
+                message_text=self.strings("inline_cmds_message").format(
+                commands=commands_text
+                ),
+            ),
+            thumbnail_url="https://cdn-0.emojis.wiki/emoji-pics/apple/information-apple.png"
+        )]
+
+        for cmd, data in all_inline_cmds:
+            keyboard = InlineKeyboardBuilder()
+
+            keyboard.row(
+                types.InlineKeyboardButton(
+                    text=self.strings("execute_command"),
+                    switch_inline_query_current_chat=cmd,
+                )
+            )
+
+            results.append(
+                types.inline_query_result_article.InlineQueryResultArticle(
+                    id=cmd,
+                    title=self.strings("inline_execute").format(cmd=cmd),
+                    description=data['description'] or self.strings("no_doc"),
+                    input_message_content=types.input_text_message_content.InputTextMessageContent(
+                        message_text=self.strings("inline_execute_message").format(
+                            cmd=cmd,
+                            description=data['description'] or self.strings('no_doc')
+                        ),
+                    ),
+                    thumbnail_url="https://cdn-0.emojis.wiki/emoji-pics/apple/laptop-apple.png",
+                    reply_markup=keyboard.as_markup()
+                )
+            )
+
+        return await inline_query.answer(results, is_personal=False, cache_time=0)
