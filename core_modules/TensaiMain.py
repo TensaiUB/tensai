@@ -24,7 +24,7 @@ import asyncio
 class TensaiMain(Module):
     strings: dict[str, dict[str, str]] = {
         "ru": {
-            "tensai-info": """<b>💠 Tensai - быстрый и безопасный юзербот.</b>
+            "tensai-info": """<b>💠 Tensai - Революция в автоматизации Telegram..</b>
 
 <b><tg-emoji emoji-id=5346181118884331907>🐈‍⬛</tg-emoji> Github: <a href="https://github.com/TensaiUB/tensai">открыть</a></b>
             
@@ -51,7 +51,7 @@ class TensaiMain(Module):
             "source-code": "<tg-emoji emoji-id=5346181118884331907>🐈‍⬛</tg-emoji> <b>Tensai полностью открыт. Исходный код можно найти на Github.</b>"
         },
         "en": {
-            "tensai-info": """<b>💠 Tensai - fast and safe userbot.</b>
+            "tensai-info": """<b>💠 Tensai - A revolution in Telegram automation.</b>
 
 <b><tg-emoji emoji-id=5346181118884331907>🐈‍⬛</tg-emoji> Github: <a href="https://github.com/TensaiUB/tensai">open</a></b>
             
