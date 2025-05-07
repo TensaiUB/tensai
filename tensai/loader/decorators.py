@@ -134,15 +134,18 @@ class Decorators:
                 ):
                     continue
 
-                if (
-                    any(
-                        message.text == f"{prefix}{name}" or message.text.startswith(f"{prefix}{name} ")
-                        for name in names
-                    )
-                or any(
-                    message.text == f"{prefix} {name}" or message.text.startswith(f"{prefix} {name} ")
+                triggers = [
+                    f"{prefix}{sep}{name}"
                     for name in names
-                )):
+                    for sep in ("", " ")
+                ]
+
+                if any(
+                    message.text == trigger or 
+                    message.text.startswith(f"{trigger} ") or 
+                    message.text.startswith(f"{trigger}\n")
+                    for trigger in triggers
+                ):
                     await handler(message)
 
             for handler in self.bismsg_handlers:
