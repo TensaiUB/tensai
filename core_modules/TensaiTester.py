@@ -21,14 +21,14 @@ class TensaiTester(Module):
     strings: dict[str, dict[str, str]] = {
         "ru": {
             "ping": "<b><tg-emoji emoji-id=5931472654660800739>🏓</tg-emoji> Понг! Пинг <code>{ms}</code> ms.</b>",
-            "uptime": "<b><tg-emoji emoji-id=5431449001532594346>⚡️</tg-emoji> Текущий аптайм: <code>{uptime}</code></b>",
+            "uptime": "<b><tg-emoji emoji-id=5431449001532594346>⚡️</tg-emoji> Текущий аптайм: <code>{uptime}</code></b>\n\n<b><tg-emoji emoji-id=5431376038628171216>💻</tg-emoji> Платформа: {platform_emoji} {platform_name}</b>",
 
             "logs": "<b><tg-emoji emoji-id=5433653135799228968>📁</tg-emoji> Логи Tensai</b>",
             "sending_logs": "<i>Отправка логов...</i>"
         },
         "en": {
             "ping": "<b><tg-emoji emoji-id=5931472654660800739>🏓</tg-emoji> Pong! Ping <code>{ms}</code> ms.</b>",
-            "uptime": "<b><tg-emoji emoji-id=5431449001532594346>⚡️</tg-emoji> Current uptime: <code>{uptime}</code></b>",
+            "uptime": "<b><tg-emoji emoji-id=5431449001532594346>⚡️</tg-emoji> Current uptime: <code>{uptime}</code></b>\n\n<b><tg-emoji emoji-id=5431376038628171216>💻</tg-emoji> Platform: {platform_emoji} {platform_name}</b>",
 
             "logs": "<b><tg-emoji emoji-id=5433653135799228968>📁</tg-emoji> Logs of Tensai</b>",
             "sending_logs": "<i>Sending logs...</i>"
@@ -58,7 +58,9 @@ class TensaiTester(Module):
         uptime = time.time() - start_time
         uptime = time.strftime("%H:%M:%S", time.gmtime(uptime))
 
-        await utils.answer(message, self.strings('uptime').format(uptime=uptime))
+        platform = utils.get_platform()
+        
+        await utils.answer(message, self.strings('uptime').format(uptime=uptime, platform_emoji=platform['premium_emoji'], platform_name=platform['name']))
 
     @command(
         aliases=["logs"]

@@ -88,34 +88,42 @@ def get_platform() -> dict:
 
     platforms = {
         "HIKKAHOST": {
-            "emoji": "🌒",
-            "premium_emoji": "",
+            "emoji": "🌘",
+            "premium_emoji": "<tg-emoji emoji-id=5188377234380954537>🌘</tg-emoji>",
             "name": "HikkaHost"
         },
         "WSL": {
             "emoji": "💠",
-            "premium_emoji": "",
+            "premium_emoji": "💠",
             "name": "WSL"
         },
         "DOCKER": {
             "emoji": "🐳",
-            "premium_emoji": "",
+            "premium_emoji": "<tg-emoji emoji-id=5431815452437257407>🐳</tg-emoji>",
             "name": "Docker"
         },
         "CODESPACES": {
             "emoji": random.choice(["🐈‍⬛", "🐙"]),
-            "premium_emoji": "",
+            "premium_emoji": random.choice(["🐈‍⬛", "🐙"]),
             "name": "Codespaces"
         },
     }
 
     for key in platforms:
         if os.environ.get(key):
+            platforms['key'] = key
             return platforms[key]
+        
+    if "com.apple" in os.environ.get("PATH", ""):
+        return {
+            "emoji": "🍏",
+            "premium_emoji": "<tg-emoji emoji-id=5372908412604525258>🍏</tg-emoji>",
+            "name": "Mac"
+        }
 
     return {
         "emoji": "💻",
-        "premium_emoji": "",
+        "premium_emoji": "<tg-emoji emoji-id=5431376038628171216>💻</tg-emoji>",
         "name": "VDS"
     }
 
