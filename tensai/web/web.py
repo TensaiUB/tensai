@@ -10,8 +10,6 @@ from pathlib import Path
 from fastapi import FastAPI, Form
 from fastapi.responses import HTMLResponse
 from aiogram import Bot
-from aiogram.client.default import DefaultBotProperties
-from aiogram.enums import ParseMode
 from tensai import db
 import uvicorn
 import asyncio
@@ -52,17 +50,16 @@ async def submit_token(token: str = Form(...)):
                 "id": bot.id
             }
         }
-    
     except Exception as e:
         return {
             "status": "error",
             "message": str(e)
         }
 
-async def start_webinstaller() -> str:
+async def start_web() -> str:
     port = db.get("tensai.settings.web.port", 8080)
     
-    config = uvicorn.Config("tensai.web.web_installer:app", host="0.0.0.0", port=port, log_level="error", loop="asyncio")
+    config = uvicorn.Config("tensai.web.web:app", host="0.0.0.0", port=port, log_level="error", loop="asyncio")
     server = uvicorn.Server(config)
 
     print(f"\n✅ Log in via web: http://127.0.0.1:{port}")

@@ -6,4 +6,4 @@
 # For license and copyright information please follow this link:
 # https://github.com/tensaiub/tensai/blob/master/LICENSE
 
-from .web_installer import *
+from .web import *

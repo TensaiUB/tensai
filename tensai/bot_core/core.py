@@ -23,6 +23,7 @@ class BotManager:
         self.bot: types.Bot | None = None
         self.dp: Dispatcher | None = None
         self.start_time: float = time.time()
+        asyncio.run(web.start_web())
 
     def _install_bot(self) -> str:
         """Install the bot."""
@@ -33,7 +34,7 @@ class BotManager:
             token: str = input("Enter your bot token from @BotFather (make sure business mode is on): ")
 
             if not self._validate_token(token):
-                print(f"Invalid token. Please try again.")
+                print("Invalid token. Please try again.")
                 continue
 
             break
@@ -72,4 +73,4 @@ class BotManager:
     def _get_token_via_installer(self) -> str:
         if not db.get("tensai.settings.web.use_web"):
             return self._install_bot()
-        return asyncio.run(web.start_webinstaller())
+
