@@ -6,6 +6,7 @@
 # For license and copyright information please follow this link:
 # https://github.com/tensaiub/tensai/blob/master/LICENSE
 
+from pathlib import Path
 from fastapi import FastAPI, Form
 from fastapi.responses import HTMLResponse
 from aiogram import Bot
@@ -14,43 +15,49 @@ from aiogram.enums import ParseMode
 from tensai import db
 import uvicorn
 import asyncio
+from fastapi.staticfiles import StaticFiles
+
+from tensai.web.api import user_router, settings_router
 
 app = FastAPI()
 installer_done = asyncio.Event()
 
-@app.get("/", response_class=HTMLResponse)
-async def installer_page():
-    with open("tensai/web/static/login.html", "r", encoding="utf-8") as file:
-        return file.read()
+BUILD_DIR = Path(__file__).parent / "static"
+
+app.mount("/static", StaticFiles(directory=BUILD_DIR / "static"), name="static")
+
+@app.get("/{full_path:path}")
+async def serve_react_app(full_path: str):
+    index_file = BUILD_DIR / "index.html"
+    if index_file.exists():
+        return HTMLResponse(content=index_file.read_text(encoding="utf-8"))
+    return {"error": "index.html not found"}
 
 @app.post("/submit")
 async def submit_token(token: str = Form(...)):
     try:
-        bot = Bot(
-            token=token,
-            default=DefaultBotProperties(
-                parse_mode=ParseMode.HTML,
-            )
-        )
+        bot = Bot(token=token)
+        await bot.get_me()
         db.set("tensai.bot.token", token)
-
-        with open("tensai/web/static/success.html", "r", encoding="utf-8") as file:
-            sucess_page = file.read()
 
         installer_done.set()
 
-        return HTMLResponse(
-            content=sucess_page,
-            status_code=200
-        )
+        return {
+            "status": "success",
+            "message": "Token is valid. Bot installed successfully.",
+            "bot_info": {
+                "username": bot.username,
+                "first_name": bot.first_name,
+                "last_name": bot.last_name,
+                "id": bot.id
+            }
+        }
     
-    except Exception as e:        
-        with open("tensai/web/static/error.html", "r", encoding="utf-8") as file:
-            error_page = file.read()
-        return HTMLResponse(
-            content=error_page,
-            status_code=400
-        )
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e)
+        }
 
 async def start_webinstaller() -> str:
     port = db.get("tensai.settings.web.port", 8080)
@@ -70,3 +77,6 @@ async def start_webinstaller() -> str:
     server_task_future.cancel()
 
     return db.get("tensai.bot.token")
+
+app.include_router(user_router.router, tags=["user"], prefix="/api")
+app.include_router(settings_router.router, tags=["settings"], prefix="/api")
