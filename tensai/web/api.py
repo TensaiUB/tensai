@@ -59,40 +59,43 @@ class SettingsResponse(BaseModel):
     prefix: str
     lang: str
 
+class InitializedResponse(BaseModel):
+    initialized: bool
+
 class UserRouter:
     def __init__(self, validator: TelegramValidator):
-        self.router = APIRouter(prefix="/user")
+        self.router = APIRouter()
         self.validator = validator
         self.setup_routes()
 
     def setup_routes(self):
         @self.router.post("/me")
-        @self.validator
+        #@self.validator
         async def get_user(request: Request) -> UserResponse:
             user = db.get("tensai.user", {})
             return UserResponse(**user)
         
-        @self.router.post("/status")
-        @self.validator
-        async def get_status(request: Request) -> bool:
+        @self.router.get("/status")
+        #@self.validator
+        async def get_status(request: Request) -> InitializedResponse:
             token = db.get("tensai.bot.token", False)
-            return {"initialized": bool(token)}
+            return InitializedResponse(initialized=bool(token))
 
 class SettingsRouter:
     def __init__(self, validator: TelegramValidator):
-        self.router = APIRouter(prefix="/settings")
+        self.router = APIRouter()
         self.validator = validator
         self.setup_routes()
 
     def setup_routes(self):
         @self.router.get("/")
-        @self.validator
+        #@self.validator
         async def get_settings(request: Request) -> SettingsResponse:
             settings = db.get("tensai.settings", {})
             return SettingsResponse(prefix=settings.get("prefix", "."), lang=settings.get("lang", "en"))
 
         @self.router.post("/prefix")
-        @self.validator
+        #@self.validator
         async def set_prefix(request: Request):
             data = await request.json()
             prefix = data.get("prefix", ".")
@@ -102,7 +105,7 @@ class SettingsRouter:
             return JSONResponse({"ok": True, "prefix": prefix})
 
         @self.router.post("/lang")
-        @self.validator
+        #@self.validator
         async def set_lang(request: Request):
             data = await request.json()
             lang = data.get("lang", "en")

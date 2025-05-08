@@ -9,6 +9,7 @@
 from tensai import dp, bot, db, install
 from tensai.loader import Loader
 from tensai.bot_core import errors
+from tensai.web import start_web
 
 import asyncio
 import logging
@@ -37,6 +38,7 @@ tensai = type(
 sys.modules["tensai.decorators"] = tensai
 
 async def start_polling() -> None:
+    await start_web()
     await dp.start_polling(bot, skip_updates=False)
 
 async def run_bot() -> None:

@@ -10,7 +10,7 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
-from tensai import db, web
+from tensai import db
 
 from rich import print
 
@@ -23,7 +23,6 @@ class BotManager:
         self.bot: types.Bot | None = None
         self.dp: Dispatcher | None = None
         self.start_time: float = time.time()
-        asyncio.run(web.start_web())
 
     def _install_bot(self) -> str:
         """Install the bot."""

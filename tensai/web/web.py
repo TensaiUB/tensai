@@ -14,6 +14,7 @@ from tensai import db
 import uvicorn
 import asyncio
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 
 from tensai.web.api import user_router, settings_router
 
@@ -23,9 +24,18 @@ installer_done = asyncio.Event()
 BUILD_DIR = Path(__file__).parent / "static"
 
 app.mount("/static", StaticFiles(directory=BUILD_DIR / "static"), name="static")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+app.include_router(user_router.router, tags=["user"], prefix="/api")
+app.include_router(settings_router.router, tags=["settings"], prefix="/api")
 
-@app.get("/{full_path:path}")
-async def serve_react_app(full_path: str):
+@app.get("/")
+async def serve_react_app():
     index_file = BUILD_DIR / "index.html"
     if index_file.exists():
         return HTMLResponse(content=index_file.read_text(encoding="utf-8"))
@@ -37,8 +47,6 @@ async def submit_token(token: str = Form(...)):
         bot = Bot(token=token)
         await bot.get_me()
         db.set("tensai.bot.token", token)
-
-        installer_done.set()
 
         return {
             "status": "success",
@@ -56,10 +64,10 @@ async def submit_token(token: str = Form(...)):
             "message": str(e)
         }
 
-async def start_web() -> str:
+async def start_web() -> None:
     port = db.get("tensai.settings.web.port", 8080)
     
-    config = uvicorn.Config("tensai.web.web:app", host="0.0.0.0", port=port, log_level="error", loop="asyncio")
+    config = uvicorn.Config("tensai.web.web:app", host="0.0.0.0", port=port, log_level="info", loop="asyncio")
     server = uvicorn.Server(config)
 
     print(f"\n✅ Log in via web: http://127.0.0.1:{port}")
@@ -67,13 +75,4 @@ async def start_web() -> str:
     async def server_task():
         await server.serve()
 
-    server_task_future = asyncio.create_task(server_task())
-
-    await installer_done.wait()
-
-    server_task_future.cancel()
-
-    return db.get("tensai.bot.token")
-
-app.include_router(user_router.router, tags=["user"], prefix="/api")
-app.include_router(settings_router.router, tags=["settings"], prefix="/api")
+    asyncio.create_task(server_task())
