@@ -41,8 +41,9 @@ class Module:
     strings: dict[str, dict[str, str]] = {}
 
     def __init__(self) -> None:
+        self.name = self.__class__.__name__.capitalize()
         self.get_prefix = utils.get_prefix
-        self.lang = utils.get_lang()
+        self.get_lang = utils.get_lang
         self.strings = Strings(self.strings)
 
     async def on_load(self) -> None:
@@ -221,7 +222,7 @@ class Loader(Decorators):
                 "handlers": module_handlers,
                 **self._parse_metadata(
                     module_path,
-                    ["description", "author", "version", "requires", "ba"],
+                    ["description", "author", "version", "requires", "banner"],
                 ),
             }
 
