@@ -44,6 +44,7 @@ class Module:
         self.name = self.__class__.__name__.capitalize()
         self.get_prefix = utils.get_prefix
         self.get_lang = utils.get_lang
+        self.db = db
         self.strings = Strings(self.strings)
 
     async def on_load(self) -> None:

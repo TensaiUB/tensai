@@ -127,7 +127,7 @@ def get_platform() -> dict:
         "name": "VDS"
     }
 
-def country_code_to_emoji(country_code):
+def country_code_to_emoji(country_code) -> str:
     country_code = country_code.lower().replace("en", "gb")
 
     OFFSET = 127397
