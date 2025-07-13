@@ -59,12 +59,16 @@ async def connect(connection: types.BusinessConnection) -> None:
     print("[sky_blue1]" + log + "[/sky_blue1]")
     logger.info(log)
 
-    db.set('tensai.user', {
-        "telegram_id": user_id,
-        "first_name": user.first_name,
-        "last_name": user.last_name,
-        "username": user.username,
-    })
+    db.set(
+        "tensai.user",
+        {
+            "business_id": connection.id,
+            "telegram_id": user_id,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "username": user.username,
+        },
+    )
 
     rights_dict = {key: bool(value) for key, value in dict(connection.rights).items()}
     db.set('tensai.rights', rights_dict)
